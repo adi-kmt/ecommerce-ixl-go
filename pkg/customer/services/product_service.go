@@ -6,7 +6,7 @@ import (
 	"gituh.com/adi-kmt/ecommerce-ixl-go/internal/messages"
 )
 
-func (service *UserService) GetAllProducts(ctx *fiber.Ctx, id int64) *messages.AppError {
+func (service *UserService) GetAllProducts(ctx *fiber.Ctx) *messages.AppError {
 	return service.repo.GetProducts(ctx)
 }
 

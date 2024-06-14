@@ -2,6 +2,6 @@ package utils
 
 import "strings"
 
-func StringConvertToListOfInt(stringToBeConverted string) []string {
+func StringConvertToListOfString(stringToBeConverted string) []string {
 	return strings.Split(strings.TrimSpace(stringToBeConverted), ",")
 }
