@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/stdlib"
+	db "gituh.com/adi-kmt/ecommerce-ixl-go/db/sqlc"
 )
 
 type DbConn struct {
