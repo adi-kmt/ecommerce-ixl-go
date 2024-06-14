@@ -56,7 +56,7 @@ func (ns NullOrderStatusEnum) Value() (driver.Value, error) {
 }
 
 type Category struct {
-	ID   int16  `json:"id"`
+	ID   int32  `json:"id"`
 	Name string `json:"name"`
 }
 
@@ -69,7 +69,7 @@ type Order struct {
 }
 
 type Orderitem struct {
-	ID              pgtype.UUID `json:"id"`
+	ID              int32       `json:"id"`
 	UserID          int64       `json:"user_id"`
 	ProductID       pgtype.UUID `json:"product_id"`
 	ProductQuantity int16       `json:"product_quantity"`

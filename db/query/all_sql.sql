@@ -23,10 +23,14 @@ SELECT * FROM products
 WHERE name ILIKE '%' || $1 || '%'
 AND ($2::text[] IS NULL OR category_id IN (SELECT id FROM categories WHERE name = ANY ($2)));
 
--- name: GetUserDetailsAndOrders :many
+-- name: GetUserDetailsAndOrders :one
 SELECT * FROM users
 LEFT JOIN orders ON users.id = orders.user_id
 WHERE users.id = $1;
+
+-- name: GetUserDetailsByID :one
+SELECT * FROM users
+WHERE id = $1;
 
 -- name: GetCurrentOrderByID :one
 SELECT * FROM orders
@@ -44,6 +48,9 @@ WHERE id = $1;
 SELECT * FROM orders
 WHERE ($1 IS NULL OR user_id = $1)
 AND ($2 IS NULL OR status = $2);
+
+-- name: UpdateOrderPaymentId :exec
+UPDATE orders SET payment_id = $2 WHERE id = $1;
 
 -- name: UpdateOrderStatusByID :exec
 UPDATE orders SET status = $2 WHERE id = $1;

@@ -10,12 +10,12 @@ CREATE TABLE IF NOT EXISTS products (
 );
 
 CREATE TABLE IF NOT EXISTS categories (
-    id SMALLINT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS users (
-    id BIGINT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     email VARCHAR(100) NOT NULL,
     name VARCHAR(100) NOT NULL,
     address VARCHAR(255) NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS orderitems (
-    id UUID PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,
     product_id UUID NOT NULL,
     product_quantity SMALLINT CHECK (product_quantity >= 0) NOT NULL,

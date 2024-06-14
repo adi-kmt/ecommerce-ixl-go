@@ -22,7 +22,7 @@ func NewAdminRepository(conn *pgxpool.Pool) *AdminRepository {
 	}
 }
 
-func (repo *AdminRepository) addProduct(ctx *fiber.Ctx, name string, price float64, categoryID, stock int16) *messages.AppError {
+func (repo *AdminRepository) AddProduct(ctx *fiber.Ctx, name string, price float64, categoryID, stock int16) *messages.AppError {
 	uuid, err := utils.GenerateNewUUID()
 	if err != nil {
 		return messages.InternalServerError("Error Generating UUID")
@@ -42,7 +42,7 @@ func (repo *AdminRepository) addProduct(ctx *fiber.Ctx, name string, price float
 	return nil
 }
 
-func (repo *AdminRepository) addCategory(ctx *fiber.Ctx, name string) *messages.AppError {
+func (repo *AdminRepository) AddCategory(ctx *fiber.Ctx, name string) *messages.AppError {
 	err := repo.q.InsertIntoCategoriesTable(ctx.Context(), db.InsertIntoCategoriesTableParams{
 		Name: name,
 	})
@@ -53,7 +53,7 @@ func (repo *AdminRepository) addCategory(ctx *fiber.Ctx, name string) *messages.
 	return nil
 }
 
-func (repo *AdminRepository) deleteProduct(ctx *fiber.Ctx, id uuid.UUID) *messages.AppError {
+func (repo *AdminRepository) DeleteProduct(ctx *fiber.Ctx, id uuid.UUID) *messages.AppError {
 	pgUuid := utils.ConvertUUIDToPgType(id)
 	err := repo.q.DeleteProductByID(ctx.Context(), pgUuid)
 	if err != nil {
@@ -94,7 +94,7 @@ func (repo *AdminRepository) GetAllOrders(ctx *fiber.Ctx, userId string, status 
 	return nil
 }
 
-func (repo *AdminRepository) changeOrderStatus(ctx *fiber.Ctx, orderId uuid.UUID, status string) *messages.AppError {
+func (repo *AdminRepository) ChangeOrderStatus(ctx *fiber.Ctx, orderId uuid.UUID, status string) *messages.AppError {
 
 	err := repo.q.UpdateOrderStatusByID(ctx.Context(), db.UpdateOrderStatusByIDParams{
 		ID:     utils.ConvertUUIDToPgType(orderId),

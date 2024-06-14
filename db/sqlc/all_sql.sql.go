@@ -11,38 +11,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const changeProductDetailsByID = `-- name: ChangeProductDetailsByID :exec
-UPDATE products 
-SET 
-    name = COALESCE($2, name),
-    description = COALESCE($3, description),
-    price = COALESCE($4, price),
-    stock = COALESCE($5, stock),
-    category_id = COALESCE($6, category_id)
-WHERE id = $1
-`
-
-type ChangeProductDetailsByIDParams struct {
-	ID          pgtype.UUID `json:"id"`
-	Name        string      `json:"name"`
-	Description string      `json:"description"`
-	Price       float64     `json:"price"`
-	Stock       int16       `json:"stock"`
-	CategoryID  int16       `json:"category_id"`
-}
-
-func (q *Queries) ChangeProductDetailsByID(ctx context.Context, arg ChangeProductDetailsByIDParams) error {
-	_, err := q.db.Exec(ctx, changeProductDetailsByID,
-		arg.ID,
-		arg.Name,
-		arg.Description,
-		arg.Price,
-		arg.Stock,
-		arg.CategoryID,
-	)
-	return err
-}
-
 const deleteProductByID = `-- name: DeleteProductByID :exec
 DELETE FROM products WHERE id = $1
 `
@@ -158,7 +126,7 @@ func (q *Queries) GetProductsForCategories(ctx context.Context, dollar_1 []strin
 	return items, nil
 }
 
-const getUserDetailsAndOrders = `-- name: GetUserDetailsAndOrders :many
+const getUserDetailsAndOrders = `-- name: GetUserDetailsAndOrders :one
 SELECT users.id, email, name, address, isadmin, password, orders.id, user_id, status, payment_id, total_price FROM users
 LEFT JOIN orders ON users.id = orders.user_id
 WHERE users.id = $1
@@ -178,36 +146,42 @@ type GetUserDetailsAndOrdersRow struct {
 	TotalPrice *float64            `json:"total_price"`
 }
 
-func (q *Queries) GetUserDetailsAndOrders(ctx context.Context, id int64) ([]*GetUserDetailsAndOrdersRow, error) {
-	rows, err := q.db.Query(ctx, getUserDetailsAndOrders, id)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []*GetUserDetailsAndOrdersRow
-	for rows.Next() {
-		var i GetUserDetailsAndOrdersRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.Email,
-			&i.Name,
-			&i.Address,
-			&i.Isadmin,
-			&i.Password,
-			&i.ID_2,
-			&i.UserID,
-			&i.Status,
-			&i.PaymentID,
-			&i.TotalPrice,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+func (q *Queries) GetUserDetailsAndOrders(ctx context.Context, id int64) (*GetUserDetailsAndOrdersRow, error) {
+	row := q.db.QueryRow(ctx, getUserDetailsAndOrders, id)
+	var i GetUserDetailsAndOrdersRow
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Name,
+		&i.Address,
+		&i.Isadmin,
+		&i.Password,
+		&i.ID_2,
+		&i.UserID,
+		&i.Status,
+		&i.PaymentID,
+		&i.TotalPrice,
+	)
+	return &i, err
+}
+
+const getUserDetailsByID = `-- name: GetUserDetailsByID :one
+SELECT id, email, name, address, isadmin, password FROM users
+WHERE id = $1
+`
+
+func (q *Queries) GetUserDetailsByID(ctx context.Context, id int64) (*User, error) {
+	row := q.db.QueryRow(ctx, getUserDetailsByID, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Name,
+		&i.Address,
+		&i.Isadmin,
+		&i.Password,
+	)
+	return &i, err
 }
 
 const insertIntoCategoriesTable = `-- name: InsertIntoCategoriesTable :exec
@@ -216,7 +190,7 @@ INSERT INTO categories (id, name)
 `
 
 type InsertIntoCategoriesTableParams struct {
-	ID   int16  `json:"id"`
+	ID   int32  `json:"id"`
 	Name string `json:"name"`
 }
 
@@ -231,7 +205,7 @@ INSERT INTO orderitems (id, user_id, product_id, product_quantity, product_price
 `
 
 type InsertIntoOrderItemsTableParams struct {
-	ID              pgtype.UUID `json:"id"`
+	ID              int32       `json:"id"`
 	UserID          int64       `json:"user_id"`
 	ProductID       pgtype.UUID `json:"product_id"`
 	ProductQuantity int16       `json:"product_quantity"`
@@ -363,6 +337,20 @@ func (q *Queries) SearchProducts(ctx context.Context, arg SearchProductsParams) 
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateOrderPaymentId = `-- name: UpdateOrderPaymentId :exec
+UPDATE orders SET payment_id = $2 WHERE id = $1
+`
+
+type UpdateOrderPaymentIdParams struct {
+	ID        pgtype.UUID `json:"id"`
+	PaymentID pgtype.UUID `json:"payment_id"`
+}
+
+func (q *Queries) UpdateOrderPaymentId(ctx context.Context, arg UpdateOrderPaymentIdParams) error {
+	_, err := q.db.Exec(ctx, updateOrderPaymentId, arg.ID, arg.PaymentID)
+	return err
 }
 
 const updateOrderStatusByID = `-- name: UpdateOrderStatusByID :exec

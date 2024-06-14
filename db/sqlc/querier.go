@@ -11,19 +11,20 @@ import (
 )
 
 type Querier interface {
-	ChangeProductDetailsByID(ctx context.Context, arg ChangeProductDetailsByIDParams) error
 	DeleteProductByID(ctx context.Context, id pgtype.UUID) error
 	GetCurrentOrderByID(ctx context.Context, id pgtype.UUID) (*Order, error)
 	GetOrdersByUserIDOrStatus(ctx context.Context, arg GetOrdersByUserIDOrStatusParams) ([]*Order, error)
 	GetProductDetailByID(ctx context.Context, id pgtype.UUID) (*Product, error)
 	GetProductsForCategories(ctx context.Context, dollar_1 []string) ([]*Product, error)
-	GetUserDetailsAndOrders(ctx context.Context, id int64) ([]*GetUserDetailsAndOrdersRow, error)
+	GetUserDetailsAndOrders(ctx context.Context, id int64) (*GetUserDetailsAndOrdersRow, error)
+	GetUserDetailsByID(ctx context.Context, id int64) (*User, error)
 	InsertIntoCategoriesTable(ctx context.Context, arg InsertIntoCategoriesTableParams) error
 	InsertIntoOrderItemsTable(ctx context.Context, arg InsertIntoOrderItemsTableParams) error
 	InsertIntoOrdersTable(ctx context.Context, arg InsertIntoOrdersTableParams) error
 	InsertIntoProductsTable(ctx context.Context, arg InsertIntoProductsTableParams) error
 	InsertIntoUsersTable(ctx context.Context, arg InsertIntoUsersTableParams) error
 	SearchProducts(ctx context.Context, arg SearchProductsParams) ([]*Product, error)
+	UpdateOrderPaymentId(ctx context.Context, arg UpdateOrderPaymentIdParams) error
 	UpdateOrderStatusByID(ctx context.Context, arg UpdateOrderStatusByIDParams) error
 }
 
