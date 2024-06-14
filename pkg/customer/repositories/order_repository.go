@@ -65,7 +65,7 @@ func (repo *UserRepository) InsertIntoOrderAndOrderItems(ctx *fiber.Ctx, product
 	err0 = repo.q.InsertIntoOrdersTable(ctx.Context(), db.InsertIntoOrdersTableParams{
 		ID:         pgOrderUUID,
 		UserID:     userId,
-		Status:     db.OrderStatusEnum("pending"),
+		Status:     db.OrderStatusEnum("initial"),
 		TotalPrice: priceAgg,
 		PaymentID:  paymentUUID,
 	})
@@ -92,6 +92,10 @@ func (repo *UserRepository) UpdateOrderPaymentId(ctx *fiber.Ctx, orderId, paymen
 
 	pgOrderUUID := utils.ConvertUUIDToPgType(orderId)
 	pgPaymentUUID := utils.ConvertUUIDToPgType(paymentID)
+	repo.q.UpdateOrderStatusByID(ctx.Context(), db.UpdateOrderStatusByIDParams{
+		ID:     pgOrderUUID,
+		Status: db.OrderStatusEnum("paid"),
+	})
 	err := repo.q.UpdateOrderPaymentId(ctx.Context(), db.UpdateOrderPaymentIdParams{
 		ID:        pgOrderUUID,
 		PaymentID: pgPaymentUUID,
