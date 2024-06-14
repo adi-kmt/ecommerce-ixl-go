@@ -20,22 +20,36 @@ func (q *Queries) DeleteProductByID(ctx context.Context, id pgtype.UUID) error {
 	return err
 }
 
-const getCurrentOrderByID = `-- name: GetCurrentOrderByID :one
-SELECT id, user_id, status, payment_id, total_price FROM orders
-WHERE id = $1
+const getCurrentOrderByID = `-- name: GetCurrentOrderByID :many
+SELECT id, user_id, product_id, product_quantity, product_price_agg, order_id FROM orderitems
+WHERE order_id = $1
 `
 
-func (q *Queries) GetCurrentOrderByID(ctx context.Context, id pgtype.UUID) (*Order, error) {
-	row := q.db.QueryRow(ctx, getCurrentOrderByID, id)
-	var i Order
-	err := row.Scan(
-		&i.ID,
-		&i.UserID,
-		&i.Status,
-		&i.PaymentID,
-		&i.TotalPrice,
-	)
-	return &i, err
+func (q *Queries) GetCurrentOrderByID(ctx context.Context, orderID pgtype.UUID) ([]*Orderitem, error) {
+	rows, err := q.db.Query(ctx, getCurrentOrderByID, orderID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*Orderitem
+	for rows.Next() {
+		var i Orderitem
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.ProductID,
+			&i.ProductQuantity,
+			&i.ProductPriceAgg,
+			&i.OrderID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getOrdersByUserIDOrStatus = `-- name: GetOrdersByUserIDOrStatus :many
@@ -167,11 +181,11 @@ func (q *Queries) GetUserDetailsAndOrders(ctx context.Context, id int64) (*GetUs
 
 const getUserDetailsByID = `-- name: GetUserDetailsByID :one
 SELECT id, email, name, address, isadmin, password FROM users
-WHERE id = $1
+WHERE email = $1
 `
 
-func (q *Queries) GetUserDetailsByID(ctx context.Context, id int64) (*User, error) {
-	row := q.db.QueryRow(ctx, getUserDetailsByID, id)
+func (q *Queries) GetUserDetailsByID(ctx context.Context, email string) (*User, error) {
+	row := q.db.QueryRow(ctx, getUserDetailsByID, email)
 	var i User
 	err := row.Scan(
 		&i.ID,

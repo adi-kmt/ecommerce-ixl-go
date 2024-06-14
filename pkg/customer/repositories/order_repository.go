@@ -88,7 +88,7 @@ func (repo *UserRepository) InsertIntoOrderAndOrderItems(ctx *fiber.Ctx, product
 	return nil
 }
 
-func (repo *UserRepository) UpdateOrderStatus(ctx *fiber.Ctx, orderId, paymentID uuid.UUID) *messages.AppError {
+func (repo *UserRepository) UpdateOrderPaymentId(ctx *fiber.Ctx, orderId, paymentID uuid.UUID) *messages.AppError {
 
 	pgOrderUUID := utils.ConvertUUIDToPgType(orderId)
 	pgPaymentUUID := utils.ConvertUUIDToPgType(paymentID)

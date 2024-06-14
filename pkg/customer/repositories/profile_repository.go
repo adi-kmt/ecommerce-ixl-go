@@ -24,8 +24,8 @@ func (repo *UserRepository) InsertUser(ctx *fiber.Ctx, name, email, address, pas
 	return nil
 }
 
-func (repo *UserRepository) GetUserDetails(ctx *fiber.Ctx, id int64) *messages.AppError {
-	_, err := repo.q.GetUserDetailsByID(ctx.Context(), id)
+func (repo *UserRepository) GetUserDetails(ctx *fiber.Ctx, email string) *messages.AppError {
+	_, err := repo.q.GetUserDetailsByID(ctx.Context(), email)
 	if err != nil {
 		log.Debugf("Error Getting User: %v", err)
 		return messages.InternalServerError("Error Getting User")

@@ -1,4 +1,4 @@
-package services
+package admin_services
 
 import (
 	"github.com/gofiber/fiber/v2"

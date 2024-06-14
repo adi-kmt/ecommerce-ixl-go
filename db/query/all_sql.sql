@@ -30,11 +30,11 @@ WHERE users.id = $1;
 
 -- name: GetUserDetailsByID :one
 SELECT * FROM users
-WHERE id = $1;
+WHERE email = $1;
 
--- name: GetCurrentOrderByID :one
-SELECT * FROM orders
-WHERE id = $1;
+-- name: GetCurrentOrderByID :many
+SELECT * FROM orderitems
+WHERE order_id = $1;
 
 -- name: GetProductsForCategories :many
 SELECT * FROM products

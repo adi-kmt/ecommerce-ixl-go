@@ -12,12 +12,12 @@ import (
 
 type Querier interface {
 	DeleteProductByID(ctx context.Context, id pgtype.UUID) error
-	GetCurrentOrderByID(ctx context.Context, id pgtype.UUID) (*Order, error)
+	GetCurrentOrderByID(ctx context.Context, orderID pgtype.UUID) ([]*Orderitem, error)
 	GetOrdersByUserIDOrStatus(ctx context.Context, arg GetOrdersByUserIDOrStatusParams) ([]*Order, error)
 	GetProductDetailByID(ctx context.Context, id pgtype.UUID) (*Product, error)
 	GetProductsForCategories(ctx context.Context, dollar_1 []string) ([]*Product, error)
 	GetUserDetailsAndOrders(ctx context.Context, id int64) (*GetUserDetailsAndOrdersRow, error)
-	GetUserDetailsByID(ctx context.Context, id int64) (*User, error)
+	GetUserDetailsByID(ctx context.Context, email string) (*User, error)
 	InsertIntoCategoriesTable(ctx context.Context, arg InsertIntoCategoriesTableParams) error
 	InsertIntoOrderItemsTable(ctx context.Context, arg InsertIntoOrderItemsTableParams) error
 	InsertIntoOrdersTable(ctx context.Context, arg InsertIntoOrdersTableParams) error
