@@ -1,0 +1,61 @@
+Endpoints (api/v1):
+  User Endpoints:
+    /products -> Home page
+    /products/search -> Search products filtered by search item and category(s)
+    /products/{id} -> Pass id and get details
+    /cart -> This is the cart page
+                   GET -> Gets all items in cart
+                   POST -> Inserts item in cart
+    /checkout -> POST Checkout all the items in cart. (pass idempotence key to indicate payment/else it is considered failed)
+
+    /login
+    /signup -> An extra apikey needs to be sent to make sure he is an admin.
+    /profile -> Get user info and order info
+  Admin Endpoints:
+    /admin/products -> This is admin products control
+                    POST -> Add product and details
+                    PATCH -> Change product item
+                    DELETE -> Delets the product
+    
+    /admin/orders -> This is Admin orders control
+                  GET -> Get all orders or by ID
+                  PATCH -> Change order status to Cancelled/On the way/ Delivered.
+
+
+
+
+DB Schema:
+    Product:
+        id -> UUID V7 (PK)
+        product_name -> VARCHAR
+        description -> TEXT
+        price -> FLOAT
+        stock -> SMALLINT
+        category_id -> SMALLINT (FK)
+    
+    Category:
+        id -> SMALLINT (PK)
+        category_name -> VARCHAR
+    
+    User:
+        id -> BIGINT (PK)
+        email -> VARCHAR (Unique)
+        NAME -> VARCHAR
+        Address -> VARCHAR(255)
+        isAdmin -> bool
+        password -> password hashed string
+
+    OrderItem:
+        id -> UUID V7 (PK)
+        user_id -> BIGINT (FK)
+        product_id -> UUID V7 (FK)
+        product_quantity -> SMALLINT
+        order_status -> ENUM(PENDING, ON THE WAY, COMPLETED, CANCELLED) // After order is at pending, Admin has to approve,
+                                                                            then changed to ON THE WAY, then admin changes to delivered/completed. Admin can also cancel.
+
+
+
+Extra stuff:
+1. Cursor pagination
+2. Password Hashing for password
+3. Optimistic Locking to prevent item to be over-bought.
