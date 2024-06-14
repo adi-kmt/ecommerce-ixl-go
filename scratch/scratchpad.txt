@@ -50,6 +50,10 @@ DB Schema:
         user_id -> BIGINT (FK)
         product_id -> UUID V7 (FK)
         product_quantity -> SMALLINT
+
+    
+    Orders:
+        id -> UUID V7
         order_status -> ENUM(PENDING, ON THE WAY, COMPLETED, CANCELLED) // After order is at pending, Admin has to approve,
                                                                             then changed to ON THE WAY, then admin changes to delivered/completed. Admin can also cancel.
 
