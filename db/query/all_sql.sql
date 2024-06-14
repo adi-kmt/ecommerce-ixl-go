@@ -50,13 +50,3 @@ UPDATE orders SET status = $2 WHERE id = $1;
 
 -- name: DeleteProductByID :exec
 DELETE FROM products WHERE id = $1;
-
--- name: ChangeProductDetailsByID :exec
-UPDATE products 
-SET 
-    name = COALESCE($2, name),
-    description = COALESCE($3, description),
-    price = COALESCE($4, price),
-    stock = COALESCE($5, stock),
-    category_id = COALESCE($6, category_id)
-WHERE id = $1;
