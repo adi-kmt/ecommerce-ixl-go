@@ -3,13 +3,12 @@ package customer_controllers
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
-	"github.com/google/uuid"
 	user_services "gituh.com/adi-kmt/ecommerce-ixl-go/pkg/customer/services"
 )
 
 type orderItemDto struct {
 	UserId    int64  `json:"user_id"`
-	ProductId string `json:"product_id"`
+	ProductId int64  `json:"product_id"`
 	Quantity  int16  `json:"quantity"`
 	OrderId   string `json:"order_id"`
 }
@@ -22,12 +21,7 @@ func AddItemToController(service *user_services.UserService) fiber.Handler {
 			return c.Status(fiber.ErrBadRequest.Code).SendString("Error parsing request body")
 		}
 
-		productUUID, err1 := uuid.Parse(requestParams.ProductId)
-		if err1 != nil {
-			log.Debugf("Error Parsing Product ID: %v", err1)
-			return c.Status(fiber.ErrBadRequest.Code).SendString("Invalid Product ID")
-		}
-		orderString, err2 := service.InsertOrderItem(c, requestParams.OrderId, productUUID, requestParams.UserId, requestParams.Quantity)
+		orderString, err2 := service.InsertOrderItem(c, requestParams.OrderId, requestParams.ProductId, requestParams.UserId, requestParams.Quantity)
 
 		if err2 != nil {
 			return c.Status(err2.Code).SendString(err2.Message)

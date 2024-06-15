@@ -3,10 +3,8 @@ package user_repositories
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
-	"github.com/google/uuid"
 	db "gituh.com/adi-kmt/ecommerce-ixl-go/db/sqlc"
 	"gituh.com/adi-kmt/ecommerce-ixl-go/internal/messages"
-	"gituh.com/adi-kmt/ecommerce-ixl-go/internal/utils"
 	"gituh.com/adi-kmt/ecommerce-ixl-go/pkg/entities"
 )
 
@@ -33,10 +31,9 @@ func (repo *UserRepository) SearchProducts(ctx *fiber.Ctx, name string, category
 	return entities.ProductDtoFromDbRow(products), nil
 }
 
-func (repo *UserRepository) GetProductDetails(ctx *fiber.Ctx, id uuid.UUID) (*entities.ProductDto, *messages.AppError) {
+func (repo *UserRepository) GetProductDetails(ctx *fiber.Ctx, id int64) (*entities.ProductDto, *messages.AppError) {
 
-	pgUUID := utils.ConvertUUIDToPgType(id)
-	product, err := repo.q.GetProductDetailByID(ctx.Context(), pgUUID)
+	product, err := repo.q.GetProductDetailByID(ctx.Context(), id)
 	if err != nil {
 		log.Debugf("Error Getting Product: %v", err)
 		return nil, messages.InternalServerError("Error Getting Product")

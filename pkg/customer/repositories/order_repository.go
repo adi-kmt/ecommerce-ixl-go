@@ -21,12 +21,11 @@ func (repo *UserRepository) GetItemsInCart(ctx *fiber.Ctx, orderId uuid.UUID) (*
 	return entities.OrderDtoFromOrderDb(order, orderId), nil
 }
 
-func (repo *UserRepository) InsertItemIntoOrderItem(ctx *fiber.Ctx, orderId, productId uuid.UUID, userId int64, quantity int16) *messages.AppError {
+func (repo *UserRepository) InsertItemIntoOrderItem(ctx *fiber.Ctx, productId int64, orderId uuid.UUID, userId int64, quantity int16) *messages.AppError {
 
 	pgOrderUUID := utils.ConvertUUIDToPgType(orderId)
-	pgProductUUID := utils.ConvertUUIDToPgType(productId)
 
-	product, err0 := repo.q.GetProductDetailByID(ctx.Context(), pgProductUUID)
+	product, err0 := repo.q.GetProductDetailByID(ctx.Context(), productId)
 	if err0 != nil {
 		log.Debugf("Error Getting Product: %v", err0)
 		return messages.InternalServerError("Error Getting Product")
@@ -38,7 +37,7 @@ func (repo *UserRepository) InsertItemIntoOrderItem(ctx *fiber.Ctx, orderId, pro
 	}
 	err1 := repo.q.InsertIntoOrderItemsTable(ctx.Context(), db.InsertIntoOrderItemsTableParams{
 		OrderID:         pgOrderUUID,
-		ProductID:       pgProductUUID,
+		ProductID:       productId,
 		UserID:          userId,
 		ProductQuantity: quantity,
 		ProductPriceAgg: priceAgg,
@@ -49,7 +48,7 @@ func (repo *UserRepository) InsertItemIntoOrderItem(ctx *fiber.Ctx, orderId, pro
 	}
 
 	err2 := repo.q.UpdateProductStock(ctx.Context(), db.UpdateProductStockParams{
-		ID:    pgProductUUID,
+		ID:    productId,
 		Stock: product.Stock - quantity,
 	})
 	if err2 != nil {
@@ -59,15 +58,14 @@ func (repo *UserRepository) InsertItemIntoOrderItem(ctx *fiber.Ctx, orderId, pro
 	return nil
 }
 
-func (repo *UserRepository) InsertIntoOrderAndOrderItems(ctx *fiber.Ctx, productId uuid.UUID, userId int64, quantity int16) (string, *messages.AppError) {
+func (repo *UserRepository) InsertIntoOrderAndOrderItems(ctx *fiber.Ctx, productId int64, userId int64, quantity int16) (string, *messages.AppError) {
 	orderId, err := utils.GenerateNewUUID()
 	if err != nil {
 		return "", messages.InternalServerError("Error Generating UUID")
 	}
 	pgOrderUUID := utils.ConvertUUIDToPgType(orderId)
-	pgProductUUID := utils.ConvertUUIDToPgType(productId)
 	paymentUUID := utils.ConvertUUIDToPgType(uuid.Nil)
-	product, err0 := repo.q.GetProductDetailByID(ctx.Context(), pgProductUUID)
+	product, err0 := repo.q.GetProductDetailByID(ctx.Context(), productId)
 	if err0 != nil {
 		log.Debugf("Error Getting Product: %v", err0)
 		return "", messages.InternalServerError("Error Getting Product")
@@ -92,7 +90,7 @@ func (repo *UserRepository) InsertIntoOrderAndOrderItems(ctx *fiber.Ctx, product
 
 	err1 := repo.q.InsertIntoOrderItemsTable(ctx.Context(), db.InsertIntoOrderItemsTableParams{
 		UserID:          userId,
-		ProductID:       pgProductUUID,
+		ProductID:       productId,
 		ProductQuantity: quantity,
 		ProductPriceAgg: priceAgg,
 		OrderID:         pgOrderUUID,
@@ -103,7 +101,7 @@ func (repo *UserRepository) InsertIntoOrderAndOrderItems(ctx *fiber.Ctx, product
 	}
 
 	err2 := repo.q.UpdateProductStock(ctx.Context(), db.UpdateProductStockParams{
-		ID:    pgProductUUID,
+		ID:    productId,
 		Stock: product.Stock - quantity,
 	})
 	if err2 != nil {

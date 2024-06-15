@@ -24,13 +24,7 @@ func NewAdminRepository(conn *pgxpool.Pool, q *db.Queries) *AdminRepository {
 }
 
 func (repo *AdminRepository) AddProduct(ctx *fiber.Ctx, name string, price float64, categoryID, stock int16) *messages.AppError {
-	uuid, err := utils.GenerateNewUUID()
-	if err != nil {
-		return messages.InternalServerError("Error Generating UUID")
-	}
-	pgUuid := utils.ConvertUUIDToPgType(uuid)
 	err1 := repo.q.InsertIntoProductsTable(ctx.Context(), db.InsertIntoProductsTableParams{
-		ID:         pgUuid,
 		Name:       name,
 		Price:      price,
 		Stock:      stock,
@@ -54,9 +48,8 @@ func (repo *AdminRepository) AddCategory(ctx *fiber.Ctx, name string) *messages.
 	return nil
 }
 
-func (repo *AdminRepository) DeleteProduct(ctx *fiber.Ctx, id uuid.UUID) *messages.AppError {
-	pgUuid := utils.ConvertUUIDToPgType(id)
-	err := repo.q.DeleteProductByID(ctx.Context(), pgUuid)
+func (repo *AdminRepository) DeleteProduct(ctx *fiber.Ctx, id int64) *messages.AppError {
+	err := repo.q.DeleteProductByID(ctx.Context(), id)
 	if err != nil {
 		log.Debugf("Error Deleting Product: %v", err)
 		return messages.InternalServerError("Error Deleting Product")

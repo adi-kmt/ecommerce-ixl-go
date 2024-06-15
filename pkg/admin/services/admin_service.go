@@ -26,7 +26,7 @@ func (service *AdminService) AddCategory(ctx *fiber.Ctx, name string) *messages.
 	return service.repo.AddCategory(ctx, name)
 }
 
-func (service *AdminService) DeleteProduct(ctx *fiber.Ctx, id uuid.UUID) *messages.AppError {
+func (service *AdminService) DeleteProduct(ctx *fiber.Ctx, id int64) *messages.AppError {
 	return service.repo.DeleteProduct(ctx, id)
 }
 

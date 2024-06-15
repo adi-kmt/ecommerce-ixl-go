@@ -1,8 +1,9 @@
 package customer_controllers
 
 import (
+	"strconv"
+
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"gituh.com/adi-kmt/ecommerce-ixl-go/internal/messages"
 	user_services "gituh.com/adi-kmt/ecommerce-ixl-go/pkg/customer/services"
 )
@@ -17,11 +18,11 @@ func GetAllProductsController(service *user_services.UserService) fiber.Handler 
 			}
 			return c.Status(fiber.StatusOK).JSON(messages.SuccessResponseSlice(productList))
 		} else {
-			productUUID, err0 := uuid.Parse(queryProductId)
+			productValue, err0 := strconv.Atoi(queryProductId)
 			if err0 != nil {
-				return c.Status(fiber.ErrBadRequest.Code).SendString("Invalid Product ID")
+				return c.Status(fiber.ErrBadRequest.Code).SendString("Product ID is not a number")
 			}
-			product, err := service.GetProductDetails(c, productUUID)
+			product, err := service.GetProductDetails(c, int64(productValue))
 			if err != nil {
 				return c.Status(err.Code).SendString(err.Message)
 			}

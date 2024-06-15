@@ -72,19 +72,19 @@ type Order struct {
 type Orderitem struct {
 	ID              int32       `json:"id"`
 	UserID          int64       `json:"user_id"`
-	ProductID       pgtype.UUID `json:"product_id"`
+	ProductID       int64       `json:"product_id"`
 	ProductQuantity int16       `json:"product_quantity"`
 	ProductPriceAgg float64     `json:"product_price_agg"`
 	OrderID         pgtype.UUID `json:"order_id"`
 }
 
 type Product struct {
-	ID          pgtype.UUID `json:"id"`
-	Name        string      `json:"name"`
-	Description string      `json:"description"`
-	Price       float64     `json:"price"`
-	Stock       int16       `json:"stock"`
-	CategoryID  int16       `json:"category_id"`
+	ID          int64   `json:"id"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Price       float64 `json:"price"`
+	Stock       int16   `json:"stock"`
+	CategoryID  int16   `json:"category_id"`
 }
 
 type User struct {

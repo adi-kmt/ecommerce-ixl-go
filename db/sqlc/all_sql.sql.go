@@ -15,7 +15,7 @@ const deleteProductByID = `-- name: DeleteProductByID :exec
 DELETE FROM products WHERE id = $1
 `
 
-func (q *Queries) DeleteProductByID(ctx context.Context, id pgtype.UUID) error {
+func (q *Queries) DeleteProductByID(ctx context.Context, id int64) error {
 	_, err := q.db.Exec(ctx, deleteProductByID, id)
 	return err
 }
@@ -26,10 +26,10 @@ WHERE order_id = $1
 `
 
 type GetCurrentOrderByIDRow struct {
-	ID              int32       `json:"id"`
-	ProductID       pgtype.UUID `json:"product_id"`
-	ProductQuantity int16       `json:"product_quantity"`
-	ProductPriceAgg float64     `json:"product_price_agg"`
+	ID              int32   `json:"id"`
+	ProductID       int64   `json:"product_id"`
+	ProductQuantity int16   `json:"product_quantity"`
+	ProductPriceAgg float64 `json:"product_price_agg"`
 }
 
 func (q *Queries) GetCurrentOrderByID(ctx context.Context, orderID pgtype.UUID) ([]*GetCurrentOrderByIDRow, error) {
@@ -99,7 +99,7 @@ SELECT id, name, description, price, stock, category_id FROM products
 WHERE id = $1
 `
 
-func (q *Queries) GetProductDetailByID(ctx context.Context, id pgtype.UUID) (*Product, error) {
+func (q *Queries) GetProductDetailByID(ctx context.Context, id int64) (*Product, error) {
 	row := q.db.QueryRow(ctx, getProductDetailByID, id)
 	var i Product
 	err := row.Scan(
@@ -227,7 +227,7 @@ INSERT INTO orderitems (id, user_id, product_id, product_quantity, product_price
 type InsertIntoOrderItemsTableParams struct {
 	ID              int32       `json:"id"`
 	UserID          int64       `json:"user_id"`
-	ProductID       pgtype.UUID `json:"product_id"`
+	ProductID       int64       `json:"product_id"`
 	ProductQuantity int16       `json:"product_quantity"`
 	ProductPriceAgg float64     `json:"product_price_agg"`
 	OrderID         pgtype.UUID `json:"order_id"`
@@ -275,12 +275,12 @@ INSERT INTO products (id, name, description, price, stock, category_id)
 `
 
 type InsertIntoProductsTableParams struct {
-	ID          pgtype.UUID `json:"id"`
-	Name        string      `json:"name"`
-	Description string      `json:"description"`
-	Price       float64     `json:"price"`
-	Stock       int16       `json:"stock"`
-	CategoryID  int16       `json:"category_id"`
+	ID          int64   `json:"id"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Price       float64 `json:"price"`
+	Stock       int16   `json:"stock"`
+	CategoryID  int16   `json:"category_id"`
 }
 
 func (q *Queries) InsertIntoProductsTable(ctx context.Context, arg InsertIntoProductsTableParams) error {
@@ -392,8 +392,8 @@ UPDATE products SET stock = $2 WHERE id = $1
 `
 
 type UpdateProductStockParams struct {
-	ID    pgtype.UUID `json:"id"`
-	Stock int16       `json:"stock"`
+	ID    int64 `json:"id"`
+	Stock int16 `json:"stock"`
 }
 
 func (q *Queries) UpdateProductStock(ctx context.Context, arg UpdateProductStockParams) error {

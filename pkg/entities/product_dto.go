@@ -2,11 +2,10 @@ package entities
 
 import (
 	db "gituh.com/adi-kmt/ecommerce-ixl-go/db/sqlc"
-	"gituh.com/adi-kmt/ecommerce-ixl-go/internal/utils"
 )
 
 type ProductDto struct {
-	ID          string  `json:"id"`
+	ID          int64   `json:"id"`
 	Name        string  `json:"name"`
 	Price       float64 `json:"price"`
 	Stock       int16   `json:"stock"`
@@ -16,7 +15,7 @@ type ProductDto struct {
 
 func ProductDtoFromDbRowSingle(row *db.Product) *ProductDto {
 	return &ProductDto{
-		ID:          utils.ConvertPgUUIDToString(row.ID),
+		ID:          row.ID,
 		Name:        row.Name,
 		Price:       row.Price,
 		Stock:       row.Stock,
@@ -30,7 +29,7 @@ func ProductDtoFromDbRow(row []*db.Product) []ProductDto {
 
 	for _, product := range row {
 		productList = append(productList, ProductDto{
-			ID:          utils.ConvertPgUUIDToString(product.ID),
+			ID:          product.ID,
 			Name:        product.Name,
 			Price:       product.Price,
 			Stock:       product.Stock,

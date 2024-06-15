@@ -3,11 +3,10 @@ package entities
 import (
 	"github.com/google/uuid"
 	db "gituh.com/adi-kmt/ecommerce-ixl-go/db/sqlc"
-	"gituh.com/adi-kmt/ecommerce-ixl-go/internal/utils"
 )
 
 type orderLineItems struct {
-	ProductId string  `json:"product_id"`
+	ProductId int64   `json:"product_id"`
 	Quantity  int16   `json:"quantity"`
 	PriceAgg  float64 `json:"price_agg"`
 }
@@ -22,7 +21,7 @@ func OrderDtoFromOrderDb(order []*db.GetCurrentOrderByIDRow, orderId uuid.UUID) 
 
 	for _, item := range order {
 		orderItems = append(orderItems, orderLineItems{
-			ProductId: utils.ConvertPgUUIDToString(item.ProductID),
+			ProductId: item.ProductID,
 			Quantity:  item.ProductQuantity,
 			PriceAgg:  item.ProductPriceAgg,
 		})

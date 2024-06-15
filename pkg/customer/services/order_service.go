@@ -8,7 +8,7 @@ import (
 	"gituh.com/adi-kmt/ecommerce-ixl-go/pkg/entities"
 )
 
-func (service *UserService) InsertOrderItem(ctx *fiber.Ctx, orderId string, productId uuid.UUID, userId int64, quantity int16) (string, *messages.AppError) {
+func (service *UserService) InsertOrderItem(ctx *fiber.Ctx, orderId string, productId int64, userId int64, quantity int16) (string, *messages.AppError) {
 	if orderId != "" {
 		return service.repo.InsertIntoOrderAndOrderItems(ctx, productId, userId, quantity)
 	} else {
@@ -17,7 +17,7 @@ func (service *UserService) InsertOrderItem(ctx *fiber.Ctx, orderId string, prod
 			log.Debugf("Error Parsing Order ID: %v", err)
 			return "", messages.BadRequest("Error Parsing Order ID")
 		}
-		return "", service.repo.InsertItemIntoOrderItem(ctx, orderUUID, productId, userId, quantity)
+		return "", service.repo.InsertItemIntoOrderItem(ctx, productId, orderUUID, userId, quantity)
 	}
 }
 
