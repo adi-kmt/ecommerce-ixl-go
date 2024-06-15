@@ -8,6 +8,7 @@ import (
 	db "gituh.com/adi-kmt/ecommerce-ixl-go/db/sqlc"
 	"gituh.com/adi-kmt/ecommerce-ixl-go/internal/messages"
 	"gituh.com/adi-kmt/ecommerce-ixl-go/internal/utils"
+	"gituh.com/adi-kmt/ecommerce-ixl-go/pkg/entities"
 )
 
 type AdminRepository struct {
@@ -63,16 +64,15 @@ func (repo *AdminRepository) DeleteProduct(ctx *fiber.Ctx, id uuid.UUID) *messag
 	return nil
 }
 
-func (repo *AdminRepository) GetAllOrders(ctx *fiber.Ctx, userId string, status string) *messages.AppError {
+func (repo *AdminRepository) GetAllOrders(ctx *fiber.Ctx, userId string, status string) ([]entities.AdminOrderDto, *messages.AppError) {
 	var userUUID *uuid.UUID
 	var pgStatus *db.OrderStatusEnum
-	var err error
 
 	if userId != "" {
 		uuidVal, err := uuid.Parse(userId)
 		if err != nil {
 			log.Debugf("Error Parsing User ID: %v", err)
-			return messages.BadRequest("Invalid User ID")
+			return nil, messages.BadRequest("Invalid User ID")
 		}
 		userUUID = &uuidVal
 	}
@@ -82,16 +82,16 @@ func (repo *AdminRepository) GetAllOrders(ctx *fiber.Ctx, userId string, status 
 		pgStatus = &pgStatusVal
 	}
 
-	_, err = repo.q.GetOrdersByUserIDOrStatus(ctx.Context(), db.GetOrdersByUserIDOrStatusParams{
+	orders, err0 := repo.q.GetOrdersByUserIDOrStatus(ctx.Context(), db.GetOrdersByUserIDOrStatusParams{
 		Column1: userUUID,
 		Column2: pgStatus,
 	})
-	if err != nil {
-		log.Debugf("Error Getting Orders: %v", err)
-		return messages.InternalServerError("Error Getting Orders")
+	if err0 != nil {
+		log.Debugf("Error Getting Orders: %v", err0)
+		return nil, messages.InternalServerError("Error Getting Orders")
 	}
 
-	return nil
+	return entities.AdminOrderDtoFromDb(orders), nil
 }
 
 func (repo *AdminRepository) ChangeOrderStatus(ctx *fiber.Ctx, orderId uuid.UUID, status string) *messages.AppError {

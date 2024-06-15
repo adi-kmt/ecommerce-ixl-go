@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	"gituh.com/adi-kmt/ecommerce-ixl-go/internal/messages"
 	admin_repositories "gituh.com/adi-kmt/ecommerce-ixl-go/pkg/admin/repositories"
+	"gituh.com/adi-kmt/ecommerce-ixl-go/pkg/entities"
 )
 
 type AdminService struct {
@@ -29,7 +30,7 @@ func (service *AdminService) DeleteProduct(ctx *fiber.Ctx, id uuid.UUID) *messag
 	return service.repo.DeleteProduct(ctx, id)
 }
 
-func (service *AdminService) GetAllOrders(ctx *fiber.Ctx, userId string, status string) *messages.AppError {
+func (service *AdminService) GetAllOrders(ctx *fiber.Ctx, userId string, status string) ([]entities.AdminOrderDto, *messages.AppError) {
 	return service.repo.GetAllOrders(ctx, userId, status)
 }
 
