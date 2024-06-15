@@ -28,15 +28,15 @@ func main() {
 	app.Use(cors.New())
 	app.Use(recover.New())
 
-	injection.InjectDependencies()
+	userService, adminService := injection.InjectDependencies()
 
 	// Monitoring the requests made to this service.
 	app.Get("/metrics", monitor.New(monitor.Config{Title: "MyService Metrics Page"}))
 
 	api := app.Group("/api/v1")
 
-	admin_controllers.AdminHandlers(api)
-	customer_controllers.CustomerHandlers(api)
+	admin_controllers.AdminHandlers(api, adminService)
+	customer_controllers.CustomerHandlers(api, userService)
 
 	port, isErr := os.LookupEnv("API_PORT")
 	if !isErr {

@@ -10,9 +10,9 @@ type UserRepository struct {
 	conn *pgxpool.Pool
 }
 
-func NewUserRepository(conn *pgxpool.Pool) *UserRepository {
+func NewUserRepository(conn *pgxpool.Pool, q *db.Queries) *UserRepository {
 	return &UserRepository{
-		q:    db.New(conn),
+		q:    q,
 		conn: conn,
 	}
 }

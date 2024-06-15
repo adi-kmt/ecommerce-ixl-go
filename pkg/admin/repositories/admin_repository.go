@@ -16,9 +16,9 @@ type AdminRepository struct {
 	conn *pgxpool.Pool
 }
 
-func NewAdminRepository(conn *pgxpool.Pool) *AdminRepository {
+func NewAdminRepository(conn *pgxpool.Pool, q *db.Queries) *AdminRepository {
 	return &AdminRepository{
-		q:    db.New(conn),
+		q:    q,
 		conn: conn,
 	}
 }
