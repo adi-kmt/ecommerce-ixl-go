@@ -47,6 +47,15 @@ func (repo *UserRepository) InsertItemIntoOrderItem(ctx *fiber.Ctx, orderId, pro
 		log.Debugf("Error Inserting Item Into Order: %v", err1)
 		return messages.InternalServerError("Error Inserting Item Into Order")
 	}
+
+	err2 := repo.q.UpdateProductStock(ctx.Context(), db.UpdateProductStockParams{
+		ID:    pgProductUUID,
+		Stock: product.Stock - quantity,
+	})
+	if err2 != nil {
+		log.Debugf("Error Updating Product Stock: %v", err2)
+		return messages.InternalServerError("Error Updating Product Stock")
+	}
 	return nil
 }
 
@@ -91,6 +100,15 @@ func (repo *UserRepository) InsertIntoOrderAndOrderItems(ctx *fiber.Ctx, product
 	if err1 != nil {
 		log.Debugf("Error Inserting Item Into Order: %v", err1)
 		return "", messages.InternalServerError("Error Inserting Item Into Order")
+	}
+
+	err2 := repo.q.UpdateProductStock(ctx.Context(), db.UpdateProductStockParams{
+		ID:    pgProductUUID,
+		Stock: product.Stock - quantity,
+	})
+	if err2 != nil {
+		log.Debugf("Error Updating Product Stock: %v", err2)
+		return "", messages.InternalServerError("Error Updating Product Stock")
 	}
 	return utils.ConvertPgUUIDToString(pgOrderUUID), nil
 }
