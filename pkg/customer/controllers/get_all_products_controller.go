@@ -11,7 +11,7 @@ import (
 func GetAllProductsController(service *user_services.UserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		queryProductId := c.Query("product_id")
-		if queryProductId != "" {
+		if queryProductId == "" {
 			productList, err := service.GetAllProducts(c)
 			if err != nil {
 				return c.Status(err.Code).SendString(err.Message)

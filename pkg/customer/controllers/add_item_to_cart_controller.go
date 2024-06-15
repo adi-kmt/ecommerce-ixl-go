@@ -26,7 +26,7 @@ func AddItemToController(service *user_services.UserService) fiber.Handler {
 		if err2 != nil {
 			return c.Status(err2.Code).SendString(err2.Message)
 		}
-		if orderString != "" {
+		if orderString == "" {
 			return c.Status(fiber.StatusCreated).SendString("Order Item created")
 		} else {
 			return c.Status(fiber.StatusCreated).SendString("Order Id is " + orderString)

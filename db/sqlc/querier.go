@@ -18,7 +18,7 @@ type Querier interface {
 	GetProductsForCategories(ctx context.Context, dollar_1 []string) ([]*Product, error)
 	GetUserDetailsAndOrders(ctx context.Context, id int64) ([]*GetUserDetailsAndOrdersRow, error)
 	GetUserEmailAndPasswordByEmail(ctx context.Context, email string) (*GetUserEmailAndPasswordByEmailRow, error)
-	InsertIntoCategoriesTable(ctx context.Context, arg InsertIntoCategoriesTableParams) error
+	InsertIntoCategoriesTable(ctx context.Context, name string) error
 	InsertIntoOrderItemsTable(ctx context.Context, arg InsertIntoOrderItemsTableParams) error
 	InsertIntoOrdersTable(ctx context.Context, arg InsertIntoOrdersTableParams) error
 	InsertIntoProductsTable(ctx context.Context, arg InsertIntoProductsTableParams) error

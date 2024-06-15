@@ -8,8 +8,8 @@ import (
 
 func GetProfileController(service *user_services.UserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		id := c.Locals("id").(int64)
-		profile, err := service.GetUserDetailsAndOrders(c, id)
+		id := c.QueryInt("id")
+		profile, err := service.GetUserDetailsAndOrders(c, int64(id))
 		if err != nil {
 			return c.Status(err.Code).SendString(err.Message)
 		}

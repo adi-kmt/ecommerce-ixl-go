@@ -1,22 +1,22 @@
 -- name: InsertIntoProductsTable :exec
-INSERT INTO products (id, name, description, price, stock, category_id)
-    VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT DO NOTHING;
+INSERT INTO products (name, description, price, stock, category_id)
+    VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING;
 
 -- name: InsertIntoCategoriesTable :exec
-INSERT INTO categories (id, name)
-    VALUES ($1, $2) ON CONFLICT DO NOTHING;
+INSERT INTO categories (name)
+    VALUES ($1) ON CONFLICT DO NOTHING;
 
 -- name: InsertIntoUsersTable :exec
-INSERT INTO users (id, email, name, address, isAdmin, password)
-    VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT DO NOTHING;
+INSERT INTO users (email, name, address, isAdmin, password)
+    VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING;
 
 -- name: InsertIntoOrdersTable :exec
 INSERT INTO orders (id, user_id, status, payment_id, total_price)
     VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING;
 
 -- name: InsertIntoOrderItemsTable :exec
-INSERT INTO orderitems (id, user_id, product_id, product_quantity, product_price_agg, order_id)
-    VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT DO NOTHING;
+INSERT INTO orderitems (user_id, product_id, product_quantity, product_price_agg, order_id)
+    VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING;
 
 -- name: SearchProducts :many
 SELECT id, name, description, price, stock, category_id FROM products

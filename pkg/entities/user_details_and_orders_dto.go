@@ -14,12 +14,14 @@ type UserDetailsAndOrdersDto struct {
 }
 
 func UserDetailsAndOrdersFromDb(userRow []*db.GetUserDetailsAndOrdersRow) *UserDetailsAndOrdersDto {
-	var orderDetails []UserOrderList
+	var orderDetails []UserOrderList = []UserOrderList{}
 	for _, user := range userRow {
-		orderDetails = append(orderDetails, UserOrderList{
-			Status:     string(user.Status.OrderStatusEnum),
-			TotalPrice: *user.TotalPrice,
-		})
+		if user.TotalPrice != nil {
+			orderDetails = append(orderDetails, UserOrderList{
+				Status:     string(user.Status.OrderStatusEnum),
+				TotalPrice: *user.TotalPrice,
+			})
+		}
 	}
 
 	return &UserDetailsAndOrdersDto{

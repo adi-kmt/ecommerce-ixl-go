@@ -7,3 +7,4 @@ TODOS
 4. Hash password
 5. Write an index for fast searches
 6. Use an index over email
+7. Handle the search SQL query better.

@@ -9,7 +9,7 @@ import (
 )
 
 func (service *UserService) InsertOrderItem(ctx *fiber.Ctx, orderId string, productId int64, userId int64, quantity int16) (string, *messages.AppError) {
-	if orderId != "" {
+	if orderId == "" {
 		return service.repo.InsertIntoOrderAndOrderItems(ctx, productId, userId, quantity)
 	} else {
 		orderUUID, err := uuid.Parse(orderId)

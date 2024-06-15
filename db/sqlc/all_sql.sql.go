@@ -205,27 +205,21 @@ func (q *Queries) GetUserEmailAndPasswordByEmail(ctx context.Context, email stri
 }
 
 const insertIntoCategoriesTable = `-- name: InsertIntoCategoriesTable :exec
-INSERT INTO categories (id, name)
-    VALUES ($1, $2) ON CONFLICT DO NOTHING
+INSERT INTO categories (name)
+    VALUES ($1) ON CONFLICT DO NOTHING
 `
 
-type InsertIntoCategoriesTableParams struct {
-	ID   int32  `json:"id"`
-	Name string `json:"name"`
-}
-
-func (q *Queries) InsertIntoCategoriesTable(ctx context.Context, arg InsertIntoCategoriesTableParams) error {
-	_, err := q.db.Exec(ctx, insertIntoCategoriesTable, arg.ID, arg.Name)
+func (q *Queries) InsertIntoCategoriesTable(ctx context.Context, name string) error {
+	_, err := q.db.Exec(ctx, insertIntoCategoriesTable, name)
 	return err
 }
 
 const insertIntoOrderItemsTable = `-- name: InsertIntoOrderItemsTable :exec
-INSERT INTO orderitems (id, user_id, product_id, product_quantity, product_price_agg, order_id)
-    VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT DO NOTHING
+INSERT INTO orderitems (user_id, product_id, product_quantity, product_price_agg, order_id)
+    VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING
 `
 
 type InsertIntoOrderItemsTableParams struct {
-	ID              int32       `json:"id"`
 	UserID          int64       `json:"user_id"`
 	ProductID       int64       `json:"product_id"`
 	ProductQuantity int16       `json:"product_quantity"`
@@ -235,7 +229,6 @@ type InsertIntoOrderItemsTableParams struct {
 
 func (q *Queries) InsertIntoOrderItemsTable(ctx context.Context, arg InsertIntoOrderItemsTableParams) error {
 	_, err := q.db.Exec(ctx, insertIntoOrderItemsTable,
-		arg.ID,
 		arg.UserID,
 		arg.ProductID,
 		arg.ProductQuantity,
@@ -270,22 +263,20 @@ func (q *Queries) InsertIntoOrdersTable(ctx context.Context, arg InsertIntoOrder
 }
 
 const insertIntoProductsTable = `-- name: InsertIntoProductsTable :exec
-INSERT INTO products (id, name, description, price, stock, category_id)
-    VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT DO NOTHING
+INSERT INTO products (name, description, price, stock, category_id)
+    VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING
 `
 
 type InsertIntoProductsTableParams struct {
-	ID          int64   `json:"id"`
 	Name        string  `json:"name"`
 	Description string  `json:"description"`
 	Price       float64 `json:"price"`
 	Stock       int16   `json:"stock"`
-	CategoryID  int16   `json:"category_id"`
+	CategoryID  int32   `json:"category_id"`
 }
 
 func (q *Queries) InsertIntoProductsTable(ctx context.Context, arg InsertIntoProductsTableParams) error {
 	_, err := q.db.Exec(ctx, insertIntoProductsTable,
-		arg.ID,
 		arg.Name,
 		arg.Description,
 		arg.Price,
@@ -296,12 +287,11 @@ func (q *Queries) InsertIntoProductsTable(ctx context.Context, arg InsertIntoPro
 }
 
 const insertIntoUsersTable = `-- name: InsertIntoUsersTable :exec
-INSERT INTO users (id, email, name, address, isAdmin, password)
-    VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT DO NOTHING
+INSERT INTO users (email, name, address, isAdmin, password)
+    VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING
 `
 
 type InsertIntoUsersTableParams struct {
-	ID       int64  `json:"id"`
 	Email    string `json:"email"`
 	Name     string `json:"name"`
 	Address  string `json:"address"`
@@ -311,7 +301,6 @@ type InsertIntoUsersTableParams struct {
 
 func (q *Queries) InsertIntoUsersTable(ctx context.Context, arg InsertIntoUsersTableParams) error {
 	_, err := q.db.Exec(ctx, insertIntoUsersTable,
-		arg.ID,
 		arg.Email,
 		arg.Name,
 		arg.Address,

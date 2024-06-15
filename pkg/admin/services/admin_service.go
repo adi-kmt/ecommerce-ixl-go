@@ -18,7 +18,7 @@ func NewAdminService(repo *admin_repositories.AdminRepository) *AdminService {
 	}
 }
 
-func (service *AdminService) AddProduct(ctx *fiber.Ctx, name string, price float64, categoryID, stock int16) *messages.AppError {
+func (service *AdminService) AddProduct(ctx *fiber.Ctx, name string, price float64, categoryID int32, stock int16) *messages.AppError {
 	return service.repo.AddProduct(ctx, name, price, categoryID, stock)
 }
 

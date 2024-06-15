@@ -23,7 +23,7 @@ func NewAdminRepository(conn *pgxpool.Pool, q *db.Queries) *AdminRepository {
 	}
 }
 
-func (repo *AdminRepository) AddProduct(ctx *fiber.Ctx, name string, price float64, categoryID, stock int16) *messages.AppError {
+func (repo *AdminRepository) AddProduct(ctx *fiber.Ctx, name string, price float64, categoryID int32, stock int16) *messages.AppError {
 	err1 := repo.q.InsertIntoProductsTable(ctx.Context(), db.InsertIntoProductsTableParams{
 		Name:       name,
 		Price:      price,
@@ -38,9 +38,7 @@ func (repo *AdminRepository) AddProduct(ctx *fiber.Ctx, name string, price float
 }
 
 func (repo *AdminRepository) AddCategory(ctx *fiber.Ctx, name string) *messages.AppError {
-	err := repo.q.InsertIntoCategoriesTable(ctx.Context(), db.InsertIntoCategoriesTableParams{
-		Name: name,
-	})
+	err := repo.q.InsertIntoCategoriesTable(ctx.Context(), name)
 	if err != nil {
 		log.Debugf("Error Inserting Category: %v", err)
 		return messages.InternalServerError("Error Inserting Category")

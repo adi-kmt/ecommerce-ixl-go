@@ -10,19 +10,19 @@ type insertProductDto struct {
 	ProductName string  `json:"product_name"`
 	Price       float64 `json:"price"`
 	Stock       int16   `json:"stock"`
-	CategoryID  int16   `json:"category_id"`
+	CategoryID  int32   `json:"category_id"`
 }
 
 func InsertProductController(service *admin_services.AdminService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		requestParams := new(insertProductDto)
+		requestBody := new(insertProductDto)
 
-		if err := c.BodyParser(requestParams); err != nil {
+		if err := c.BodyParser(requestBody); err != nil {
 			log.Debugf("Error parsing request body: %v", err)
 			return c.Status(fiber.ErrBadRequest.Code).SendString("Error parsing request body")
 		}
 
-		err0 := service.AddProduct(c, requestParams.ProductName, requestParams.Price, requestParams.CategoryID, requestParams.Stock)
+		err0 := service.AddProduct(c, requestBody.ProductName, requestBody.Price, requestBody.CategoryID, requestBody.Stock)
 
 		if err0 != nil {
 			return c.Status(err0.Code).SendString(err0.Message)

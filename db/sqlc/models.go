@@ -84,7 +84,7 @@ type Product struct {
 	Description string  `json:"description"`
 	Price       float64 `json:"price"`
 	Stock       int16   `json:"stock"`
-	CategoryID  int16   `json:"category_id"`
+	CategoryID  int32   `json:"category_id"`
 }
 
 type User struct {
