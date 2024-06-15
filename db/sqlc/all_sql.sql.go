@@ -21,26 +21,31 @@ func (q *Queries) DeleteProductByID(ctx context.Context, id pgtype.UUID) error {
 }
 
 const getCurrentOrderByID = `-- name: GetCurrentOrderByID :many
-SELECT id, user_id, product_id, product_quantity, product_price_agg, order_id FROM orderitems
+SELECT id, product_id, product_quantity, product_price_agg FROM orderitems
 WHERE order_id = $1
 `
 
-func (q *Queries) GetCurrentOrderByID(ctx context.Context, orderID pgtype.UUID) ([]*Orderitem, error) {
+type GetCurrentOrderByIDRow struct {
+	ID              int32       `json:"id"`
+	ProductID       pgtype.UUID `json:"product_id"`
+	ProductQuantity int16       `json:"product_quantity"`
+	ProductPriceAgg float64     `json:"product_price_agg"`
+}
+
+func (q *Queries) GetCurrentOrderByID(ctx context.Context, orderID pgtype.UUID) ([]*GetCurrentOrderByIDRow, error) {
 	rows, err := q.db.Query(ctx, getCurrentOrderByID, orderID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []*Orderitem
+	var items []*GetCurrentOrderByIDRow
 	for rows.Next() {
-		var i Orderitem
+		var i GetCurrentOrderByIDRow
 		if err := rows.Scan(
 			&i.ID,
-			&i.UserID,
 			&i.ProductID,
 			&i.ProductQuantity,
 			&i.ProductPriceAgg,
-			&i.OrderID,
 		); err != nil {
 			return nil, err
 		}
@@ -53,7 +58,7 @@ func (q *Queries) GetCurrentOrderByID(ctx context.Context, orderID pgtype.UUID) 
 }
 
 const getOrdersByUserIDOrStatus = `-- name: GetOrdersByUserIDOrStatus :many
-SELECT id, user_id, status, payment_id, total_price FROM orders
+SELECT id, user_id, status FROM orders
 WHERE ($1 IS NULL OR user_id = $1)
 AND ($2 IS NULL OR status = $2)
 `
@@ -63,22 +68,22 @@ type GetOrdersByUserIDOrStatusParams struct {
 	Column2 interface{} `json:"column_2"`
 }
 
-func (q *Queries) GetOrdersByUserIDOrStatus(ctx context.Context, arg GetOrdersByUserIDOrStatusParams) ([]*Order, error) {
+type GetOrdersByUserIDOrStatusRow struct {
+	ID     pgtype.UUID     `json:"id"`
+	UserID int64           `json:"user_id"`
+	Status OrderStatusEnum `json:"status"`
+}
+
+func (q *Queries) GetOrdersByUserIDOrStatus(ctx context.Context, arg GetOrdersByUserIDOrStatusParams) ([]*GetOrdersByUserIDOrStatusRow, error) {
 	rows, err := q.db.Query(ctx, getOrdersByUserIDOrStatus, arg.Column1, arg.Column2)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []*Order
+	var items []*GetOrdersByUserIDOrStatusRow
 	for rows.Next() {
-		var i Order
-		if err := rows.Scan(
-			&i.ID,
-			&i.UserID,
-			&i.Status,
-			&i.PaymentID,
-			&i.TotalPrice,
-		); err != nil {
+		var i GetOrdersByUserIDOrStatusRow
+		if err := rows.Scan(&i.ID, &i.UserID, &i.Status); err != nil {
 			return nil, err
 		}
 		items = append(items, &i)
@@ -140,8 +145,8 @@ func (q *Queries) GetProductsForCategories(ctx context.Context, dollar_1 []strin
 	return items, nil
 }
 
-const getUserDetailsAndOrders = `-- name: GetUserDetailsAndOrders :one
-SELECT users.id, email, name, address, isadmin, password, orders.id, user_id, status, payment_id, total_price FROM users
+const getUserDetailsAndOrders = `-- name: GetUserDetailsAndOrders :many
+SELECT users.id, users.email, users.name, users.address, orders.status, orders.total_price FROM users
 LEFT JOIN orders ON users.id = orders.user_id
 WHERE users.id = $1
 `
@@ -151,50 +156,51 @@ type GetUserDetailsAndOrdersRow struct {
 	Email      string              `json:"email"`
 	Name       string              `json:"name"`
 	Address    string              `json:"address"`
-	Isadmin    bool                `json:"isadmin"`
-	Password   string              `json:"password"`
-	ID_2       pgtype.UUID         `json:"id_2"`
-	UserID     *int64              `json:"user_id"`
 	Status     NullOrderStatusEnum `json:"status"`
-	PaymentID  pgtype.UUID         `json:"payment_id"`
 	TotalPrice *float64            `json:"total_price"`
 }
 
-func (q *Queries) GetUserDetailsAndOrders(ctx context.Context, id int64) (*GetUserDetailsAndOrdersRow, error) {
-	row := q.db.QueryRow(ctx, getUserDetailsAndOrders, id)
-	var i GetUserDetailsAndOrdersRow
-	err := row.Scan(
-		&i.ID,
-		&i.Email,
-		&i.Name,
-		&i.Address,
-		&i.Isadmin,
-		&i.Password,
-		&i.ID_2,
-		&i.UserID,
-		&i.Status,
-		&i.PaymentID,
-		&i.TotalPrice,
-	)
-	return &i, err
+func (q *Queries) GetUserDetailsAndOrders(ctx context.Context, id int64) ([]*GetUserDetailsAndOrdersRow, error) {
+	rows, err := q.db.Query(ctx, getUserDetailsAndOrders, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*GetUserDetailsAndOrdersRow
+	for rows.Next() {
+		var i GetUserDetailsAndOrdersRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Email,
+			&i.Name,
+			&i.Address,
+			&i.Status,
+			&i.TotalPrice,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
-const getUserDetailsByID = `-- name: GetUserDetailsByID :one
-SELECT id, email, name, address, isadmin, password FROM users
+const getUserEmailAndPasswordByEmail = `-- name: GetUserEmailAndPasswordByEmail :one
+SELECT  email, password FROM users
 WHERE email = $1
 `
 
-func (q *Queries) GetUserDetailsByID(ctx context.Context, email string) (*User, error) {
-	row := q.db.QueryRow(ctx, getUserDetailsByID, email)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Email,
-		&i.Name,
-		&i.Address,
-		&i.Isadmin,
-		&i.Password,
-	)
+type GetUserEmailAndPasswordByEmailRow struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+func (q *Queries) GetUserEmailAndPasswordByEmail(ctx context.Context, email string) (*GetUserEmailAndPasswordByEmailRow, error) {
+	row := q.db.QueryRow(ctx, getUserEmailAndPasswordByEmail, email)
+	var i GetUserEmailAndPasswordByEmailRow
+	err := row.Scan(&i.Email, &i.Password)
 	return &i, err
 }
 

@@ -19,33 +19,33 @@ INSERT INTO orderitems (id, user_id, product_id, product_quantity, product_price
     VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT DO NOTHING;
 
 -- name: SearchProducts :many
-SELECT * FROM products
+SELECT id, name, description, price, stock, category_id FROM products
 WHERE name ILIKE '%' || $1 || '%'
 AND ($2::text[] IS NULL OR category_id IN (SELECT id FROM categories WHERE name = ANY ($2)));
 
--- name: GetUserDetailsAndOrders :one
-SELECT * FROM users
+-- name: GetUserDetailsAndOrders :many
+SELECT users.id, users.email, users.name, users.address, orders.status, orders.total_price FROM users
 LEFT JOIN orders ON users.id = orders.user_id
 WHERE users.id = $1;
 
--- name: GetUserDetailsByID :one
-SELECT * FROM users
+-- name: GetUserEmailAndPasswordByEmail :one
+SELECT  email, password FROM users
 WHERE email = $1;
 
 -- name: GetCurrentOrderByID :many
-SELECT * FROM orderitems
+SELECT id, product_id, product_quantity, product_price_agg FROM orderitems
 WHERE order_id = $1;
 
 -- name: GetProductsForCategories :many
-SELECT * FROM products
+SELECT id, name, description, price, stock, category_id FROM products
 WHERE category_id IN (SELECT id FROM categories WHERE name = ANY ($1::text[]));
 
 -- name: GetProductDetailByID :one
-SELECT * FROM products
+SELECT id, name, description, price, stock, category_id FROM products
 WHERE id = $1;
 
 -- name: GetOrdersByUserIDOrStatus :many
-SELECT * FROM orders
+SELECT id, user_id, status FROM orders
 WHERE ($1 IS NULL OR user_id = $1)
 AND ($2 IS NULL OR status = $2);
 

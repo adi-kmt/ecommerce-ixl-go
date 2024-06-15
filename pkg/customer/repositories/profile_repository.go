@@ -5,6 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2/log"
 	db "gituh.com/adi-kmt/ecommerce-ixl-go/db/sqlc"
 	"gituh.com/adi-kmt/ecommerce-ixl-go/internal/messages"
+	"gituh.com/adi-kmt/ecommerce-ixl-go/pkg/entities"
 )
 
 func (repo *UserRepository) InsertUser(ctx *fiber.Ctx, name, email, address, password string, isAdmin bool) *messages.AppError {
@@ -24,20 +25,20 @@ func (repo *UserRepository) InsertUser(ctx *fiber.Ctx, name, email, address, pas
 	return nil
 }
 
-func (repo *UserRepository) GetUserDetails(ctx *fiber.Ctx, email string) *messages.AppError {
-	_, err := repo.q.GetUserDetailsByID(ctx.Context(), email)
+func (repo *UserRepository) GetUserDetails(ctx *fiber.Ctx, email string) (*db.GetUserEmailAndPasswordByEmailRow, *messages.AppError) {
+	user, err := repo.q.GetUserEmailAndPasswordByEmail(ctx.Context(), email)
 	if err != nil {
 		log.Debugf("Error Getting User: %v", err)
-		return messages.InternalServerError("Error Getting User")
+		return nil, messages.InternalServerError("Error Getting User")
 	}
-	return nil
+	return user, nil
 }
 
-func (repo *UserRepository) GetUserDetailsAndOrders(ctx *fiber.Ctx, userId int64) *messages.AppError {
-	_, err := repo.q.GetUserDetailsAndOrders(ctx.Context(), userId)
+func (repo *UserRepository) GetUserDetailsAndOrders(ctx *fiber.Ctx, userId int64) (*entities.UserDetailsAndOrdersDto, *messages.AppError) {
+	userAndOrderDetails, err := repo.q.GetUserDetailsAndOrders(ctx.Context(), userId)
 	if err != nil {
 		log.Debugf("Error Getting Profile: %v", err)
-		return messages.InternalServerError("Error Getting Profile")
+		return nil, messages.InternalServerError("Error Getting Profile")
 	}
-	return nil
+	return entities.UserDetailsAndOrdersFromDb(userAndOrderDetails), nil
 }

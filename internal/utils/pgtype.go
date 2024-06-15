@@ -11,3 +11,7 @@ func ConvertUUIDToPgType(uuid uuid.UUID) pgtype.UUID {
 		Valid: true,
 	}
 }
+
+func ConvertPgUUIDToString(uuid pgtype.UUID) string {
+	return string(uuid.Bytes[:])
+}

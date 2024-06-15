@@ -14,7 +14,8 @@ import (
 type OrderStatusEnum string
 
 const (
-	OrderStatusEnumPENDING   OrderStatusEnum = "PENDING"
+	OrderStatusEnumINITIAL   OrderStatusEnum = "INITIAL"
+	OrderStatusEnumPAID      OrderStatusEnum = "PAID"
 	OrderStatusEnumONTHEWAY  OrderStatusEnum = "ON THE WAY"
 	OrderStatusEnumCOMPLETED OrderStatusEnum = "COMPLETED"
 	OrderStatusEnumCANCELLED OrderStatusEnum = "CANCELLED"
