@@ -26,6 +26,7 @@ type Querier interface {
 	SearchProducts(ctx context.Context, arg SearchProductsParams) ([]*Product, error)
 	UpdateOrderPaymentId(ctx context.Context, arg UpdateOrderPaymentIdParams) error
 	UpdateOrderStatusByID(ctx context.Context, arg UpdateOrderStatusByIDParams) error
+	UpdateProductStock(ctx context.Context, arg UpdateProductStockParams) error
 }
 
 var _ Querier = (*Queries)(nil)

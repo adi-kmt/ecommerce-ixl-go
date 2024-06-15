@@ -27,6 +27,15 @@ func AddItemToController(service *user_services.UserService) fiber.Handler {
 			log.Debugf("Error Parsing Product ID: %v", err1)
 			return c.Status(fiber.ErrBadRequest.Code).SendString("Invalid Product ID")
 		}
-		return service.InsertOrderItem(c, requestParams.OrderId, productUUID, requestParams.UserId, requestParams.Quantity)
+		orderString, err2 := service.InsertOrderItem(c, requestParams.OrderId, productUUID, requestParams.UserId, requestParams.Quantity)
+
+		if err2 != nil {
+			return c.Status(err2.Code).SendString(err2.Message)
+		}
+		if orderString != "" {
+			return c.Status(fiber.StatusCreated).SendString("Order Item created")
+		} else {
+			return c.Status(fiber.StatusCreated).SendString("Order Id is " + orderString)
+		}
 	}
 }

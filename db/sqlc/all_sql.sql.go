@@ -386,3 +386,17 @@ func (q *Queries) UpdateOrderStatusByID(ctx context.Context, arg UpdateOrderStat
 	_, err := q.db.Exec(ctx, updateOrderStatusByID, arg.ID, arg.Status)
 	return err
 }
+
+const updateProductStock = `-- name: UpdateProductStock :exec
+UPDATE products SET stock = $2 WHERE id = $1
+`
+
+type UpdateProductStockParams struct {
+	ID    pgtype.UUID `json:"id"`
+	Stock int16       `json:"stock"`
+}
+
+func (q *Queries) UpdateProductStock(ctx context.Context, arg UpdateProductStockParams) error {
+	_, err := q.db.Exec(ctx, updateProductStock, arg.ID, arg.Stock)
+	return err
+}

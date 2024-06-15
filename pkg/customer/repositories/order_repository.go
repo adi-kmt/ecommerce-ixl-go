@@ -7,17 +7,18 @@ import (
 	db "gituh.com/adi-kmt/ecommerce-ixl-go/db/sqlc"
 	"gituh.com/adi-kmt/ecommerce-ixl-go/internal/messages"
 	"gituh.com/adi-kmt/ecommerce-ixl-go/internal/utils"
+	"gituh.com/adi-kmt/ecommerce-ixl-go/pkg/entities"
 )
 
-func (repo *UserRepository) GetItemsInCart(ctx *fiber.Ctx, orderId uuid.UUID) *messages.AppError {
+func (repo *UserRepository) GetItemsInCart(ctx *fiber.Ctx, orderId uuid.UUID) (*entities.OrderDto, *messages.AppError) {
 
 	pgUUID := utils.ConvertUUIDToPgType(orderId)
-	_, err := repo.q.GetCurrentOrderByID(ctx.Context(), pgUUID)
+	order, err := repo.q.GetCurrentOrderByID(ctx.Context(), pgUUID)
 	if err != nil {
 		log.Debugf("Error Getting Items In Cart: %v", err)
-		return messages.InternalServerError("Error Getting Items In Cart")
+		return nil, messages.InternalServerError("Error Getting Items In Cart")
 	}
-	return nil
+	return entities.OrderDtoFromOrderDb(order, orderId), nil
 }
 
 func (repo *UserRepository) InsertItemIntoOrderItem(ctx *fiber.Ctx, orderId, productId uuid.UUID, userId int64, quantity int16) *messages.AppError {
@@ -32,6 +33,9 @@ func (repo *UserRepository) InsertItemIntoOrderItem(ctx *fiber.Ctx, orderId, pro
 	}
 
 	priceAgg := product.Price * float64(quantity)
+	if product.Stock < quantity {
+		return messages.InternalServerError("Out of Stock")
+	}
 	err1 := repo.q.InsertIntoOrderItemsTable(ctx.Context(), db.InsertIntoOrderItemsTableParams{
 		OrderID:         pgOrderUUID,
 		ProductID:       pgProductUUID,
@@ -46,10 +50,10 @@ func (repo *UserRepository) InsertItemIntoOrderItem(ctx *fiber.Ctx, orderId, pro
 	return nil
 }
 
-func (repo *UserRepository) InsertIntoOrderAndOrderItems(ctx *fiber.Ctx, productId uuid.UUID, userId int64, quantity int16) *messages.AppError {
+func (repo *UserRepository) InsertIntoOrderAndOrderItems(ctx *fiber.Ctx, productId uuid.UUID, userId int64, quantity int16) (string, *messages.AppError) {
 	orderId, err := utils.GenerateNewUUID()
 	if err != nil {
-		return messages.InternalServerError("Error Generating UUID")
+		return "", messages.InternalServerError("Error Generating UUID")
 	}
 	pgOrderUUID := utils.ConvertUUIDToPgType(orderId)
 	pgProductUUID := utils.ConvertUUIDToPgType(productId)
@@ -57,7 +61,10 @@ func (repo *UserRepository) InsertIntoOrderAndOrderItems(ctx *fiber.Ctx, product
 	product, err0 := repo.q.GetProductDetailByID(ctx.Context(), pgProductUUID)
 	if err0 != nil {
 		log.Debugf("Error Getting Product: %v", err0)
-		return messages.InternalServerError("Error Getting Product")
+		return "", messages.InternalServerError("Error Getting Product")
+	}
+	if product.Stock < quantity {
+		return "", messages.InternalServerError("Out of Stock")
 	}
 
 	priceAgg := product.Price * float64(quantity)
@@ -71,7 +78,7 @@ func (repo *UserRepository) InsertIntoOrderAndOrderItems(ctx *fiber.Ctx, product
 	})
 	if err0 != nil {
 		log.Debugf("Error Inserting Item Into Order: %v", err0)
-		return messages.InternalServerError("Error Inserting Item Into Order")
+		return "", messages.InternalServerError("Error Inserting Item Into Order")
 	}
 
 	err1 := repo.q.InsertIntoOrderItemsTable(ctx.Context(), db.InsertIntoOrderItemsTableParams{
@@ -83,9 +90,9 @@ func (repo *UserRepository) InsertIntoOrderAndOrderItems(ctx *fiber.Ctx, product
 	})
 	if err1 != nil {
 		log.Debugf("Error Inserting Item Into Order: %v", err1)
-		return messages.InternalServerError("Error Inserting Item Into Order")
+		return "", messages.InternalServerError("Error Inserting Item Into Order")
 	}
-	return nil
+	return utils.ConvertPgUUIDToString(pgOrderUUID), nil
 }
 
 func (repo *UserRepository) UpdateOrderPaymentId(ctx *fiber.Ctx, orderId, paymentID uuid.UUID) *messages.AppError {

@@ -49,6 +49,9 @@ SELECT id, user_id, status FROM orders
 WHERE ($1 IS NULL OR user_id = $1)
 AND ($2 IS NULL OR status = $2);
 
+-- name: UpdateProductStock :exec
+UPDATE products SET stock = $2 WHERE id = $1;
+
 -- name: UpdateOrderPaymentId :exec
 UPDATE orders SET payment_id = $2 WHERE id = $1;
 

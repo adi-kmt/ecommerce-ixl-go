@@ -5,22 +5,23 @@ import (
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/google/uuid"
 	"gituh.com/adi-kmt/ecommerce-ixl-go/internal/messages"
+	"gituh.com/adi-kmt/ecommerce-ixl-go/pkg/entities"
 )
 
-func (service *UserService) InsertOrderItem(ctx *fiber.Ctx, orderId string, productId uuid.UUID, userId int64, quantity int16) *messages.AppError {
+func (service *UserService) InsertOrderItem(ctx *fiber.Ctx, orderId string, productId uuid.UUID, userId int64, quantity int16) (string, *messages.AppError) {
 	if orderId != "" {
 		return service.repo.InsertIntoOrderAndOrderItems(ctx, productId, userId, quantity)
 	} else {
 		orderUUID, err := uuid.Parse(orderId)
 		if err != nil {
 			log.Debugf("Error Parsing Order ID: %v", err)
-			return messages.BadRequest("Error Parsing Order ID")
+			return "", messages.BadRequest("Error Parsing Order ID")
 		}
-		return service.repo.InsertItemIntoOrderItem(ctx, orderUUID, productId, userId, quantity)
+		return "", service.repo.InsertItemIntoOrderItem(ctx, orderUUID, productId, userId, quantity)
 	}
 }
 
-func (service *UserService) GetAllItemsInOrder(ctx *fiber.Ctx, orderId uuid.UUID) *messages.AppError {
+func (service *UserService) GetAllItemsInOrder(ctx *fiber.Ctx, orderId uuid.UUID) (*entities.OrderDto, *messages.AppError) {
 	return service.repo.GetItemsInCart(ctx, orderId)
 }
 
