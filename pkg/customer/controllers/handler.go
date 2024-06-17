@@ -6,9 +6,6 @@ import (
 )
 
 func CustomerHandlers(router fiber.Router, service *user_services.UserService) {
-	router.Post("/login", LoginController(service))
-	router.Post("/register", SignupController(service))
-
 	router.Get("/profile", GetProfileController(service))
 
 	router.Get("/products", GetAllProductsController(service))

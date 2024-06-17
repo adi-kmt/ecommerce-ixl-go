@@ -10,18 +10,18 @@ func (service *UserService) GetUserDetailsAndOrders(ctx *fiber.Ctx, id int64) (*
 	return service.repo.GetUserDetailsAndOrders(ctx, id)
 }
 
-func (service *UserService) InsertUser(ctx *fiber.Ctx, name, email, address, password string, isAdmin bool) *messages.AppError {
+func (service *UserService) InsertUser(ctx *fiber.Ctx, name, email, address, password string, isAdmin bool) (int64, *messages.AppError) {
 	return service.repo.InsertUser(ctx, name, email, address, password, isAdmin)
 }
 
-func (service *UserService) ValidateUser(ctx *fiber.Ctx, email, password string) *messages.AppError {
+func (service *UserService) ValidateUser(ctx *fiber.Ctx, email, password string) (int64, *messages.AppError) {
 	user, err := service.repo.GetUserDetails(ctx, email)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	if user.Password == password {
-		return nil
+		return user.ID, nil
 	} else {
-		return messages.Unauthorized("Invalid Password")
+		return 0, messages.Unauthorized("Invalid Password")
 	}
 }

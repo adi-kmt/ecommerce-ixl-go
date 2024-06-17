@@ -8,9 +8,9 @@ import (
 	"gituh.com/adi-kmt/ecommerce-ixl-go/pkg/entities"
 )
 
-func (repo *UserRepository) InsertUser(ctx *fiber.Ctx, name, email, address, password string, isAdmin bool) *messages.AppError {
+func (repo *UserRepository) InsertUser(ctx *fiber.Ctx, name, email, address, password string, isAdmin bool) (int64, *messages.AppError) {
 
-	err0 := repo.q.InsertIntoUsersTable(ctx.Context(), db.InsertIntoUsersTableParams{
+	userId, err0 := repo.q.InsertIntoUsersTable(ctx.Context(), db.InsertIntoUsersTableParams{
 		Name:     name,
 		Email:    email,
 		Password: password,
@@ -20,9 +20,9 @@ func (repo *UserRepository) InsertUser(ctx *fiber.Ctx, name, email, address, pas
 
 	if err0 != nil {
 		log.Debugf("Error Inserting User: %v", err0)
-		return messages.InternalServerError("Error Inserting User")
+		return 0, messages.InternalServerError("Error Inserting User")
 	}
-	return nil
+	return userId, nil
 }
 
 func (repo *UserRepository) GetUserDetails(ctx *fiber.Ctx, email string) (*db.GetUserEmailAndPasswordByEmailRow, *messages.AppError) {

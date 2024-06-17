@@ -12,5 +12,4 @@ func AdminHandlers(router fiber.Router, service *admin_services.AdminService) {
 	router.Post("/admin/categories", InsertCategoryController(service))
 
 	router.Get("/admin/orders", GetOrdersController(service))
-	router.Patch("/admin/orders", PatchOrderStatusController(service))
 }

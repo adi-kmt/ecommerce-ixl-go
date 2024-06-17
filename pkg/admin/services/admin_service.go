@@ -2,7 +2,6 @@ package admin_services
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"gituh.com/adi-kmt/ecommerce-ixl-go/internal/messages"
 	admin_repositories "gituh.com/adi-kmt/ecommerce-ixl-go/pkg/admin/repositories"
 	"gituh.com/adi-kmt/ecommerce-ixl-go/pkg/entities"
@@ -32,8 +31,4 @@ func (service *AdminService) DeleteProduct(ctx *fiber.Ctx, id int64) *messages.A
 
 func (service *AdminService) GetAllOrders(ctx *fiber.Ctx, userId string, status string) ([]entities.AdminOrderDto, *messages.AppError) {
 	return service.repo.GetAllOrders(ctx, userId, status)
-}
-
-func (service *AdminService) ChangeOrderStatus(ctx *fiber.Ctx, orderId uuid.UUID, status string) *messages.AppError {
-	return service.repo.ChangeOrderStatus(ctx, orderId, status)
 }

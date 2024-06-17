@@ -5,11 +5,9 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	db "gituh.com/adi-kmt/ecommerce-ixl-go/db/sqlc"
 	"gituh.com/adi-kmt/ecommerce-ixl-go/internal/messages"
-	"gituh.com/adi-kmt/ecommerce-ixl-go/internal/utils"
 	"gituh.com/adi-kmt/ecommerce-ixl-go/pkg/entities"
 )
 
@@ -86,17 +84,4 @@ func (repo *AdminRepository) GetAllOrders(ctx *fiber.Ctx, userId string, status 
 	}
 
 	return entities.AdminOrderDtoFromDb(orders), nil
-}
-
-func (repo *AdminRepository) ChangeOrderStatus(ctx *fiber.Ctx, orderId uuid.UUID, status string) *messages.AppError {
-
-	err := repo.q.UpdateOrderStatusByID(ctx.Context(), db.UpdateOrderStatusByIDParams{
-		ID:     utils.ConvertUUIDToPgType(orderId),
-		Status: db.OrderStatusEnum(status),
-	})
-	if err != nil {
-		log.Debugf("Error Changing Order Status: %v", err)
-		return messages.InternalServerError("Error Changing Order Status")
-	}
-	return nil
 }

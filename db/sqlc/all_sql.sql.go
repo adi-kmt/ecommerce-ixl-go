@@ -205,11 +205,12 @@ func (q *Queries) GetUserDetailsAndOrders(ctx context.Context, id int64) ([]*Get
 }
 
 const getUserEmailAndPasswordByEmail = `-- name: GetUserEmailAndPasswordByEmail :one
-SELECT  email, password FROM users
+SELECT  id, email, password FROM users
 WHERE email = $1
 `
 
 type GetUserEmailAndPasswordByEmailRow struct {
+	ID       int64  `json:"id"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
@@ -217,7 +218,7 @@ type GetUserEmailAndPasswordByEmailRow struct {
 func (q *Queries) GetUserEmailAndPasswordByEmail(ctx context.Context, email string) (*GetUserEmailAndPasswordByEmailRow, error) {
 	row := q.db.QueryRow(ctx, getUserEmailAndPasswordByEmail, email)
 	var i GetUserEmailAndPasswordByEmailRow
-	err := row.Scan(&i.Email, &i.Password)
+	err := row.Scan(&i.ID, &i.Email, &i.Password)
 	return &i, err
 }
 
@@ -303,9 +304,9 @@ func (q *Queries) InsertIntoProductsTable(ctx context.Context, arg InsertIntoPro
 	return err
 }
 
-const insertIntoUsersTable = `-- name: InsertIntoUsersTable :exec
+const insertIntoUsersTable = `-- name: InsertIntoUsersTable :one
 INSERT INTO users (email, name, address, isAdmin, password)
-    VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING
+    VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING RETURNING id
 `
 
 type InsertIntoUsersTableParams struct {
@@ -316,15 +317,17 @@ type InsertIntoUsersTableParams struct {
 	Password string `json:"password"`
 }
 
-func (q *Queries) InsertIntoUsersTable(ctx context.Context, arg InsertIntoUsersTableParams) error {
-	_, err := q.db.Exec(ctx, insertIntoUsersTable,
+func (q *Queries) InsertIntoUsersTable(ctx context.Context, arg InsertIntoUsersTableParams) (int64, error) {
+	row := q.db.QueryRow(ctx, insertIntoUsersTable,
 		arg.Email,
 		arg.Name,
 		arg.Address,
 		arg.Isadmin,
 		arg.Password,
 	)
-	return err
+	var id int64
+	err := row.Scan(&id)
+	return id, err
 }
 
 const searchProducts = `-- name: SearchProducts :many

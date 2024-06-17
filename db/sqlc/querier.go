@@ -23,7 +23,7 @@ type Querier interface {
 	InsertIntoOrderItemsTable(ctx context.Context, arg InsertIntoOrderItemsTableParams) error
 	InsertIntoOrdersTable(ctx context.Context, arg InsertIntoOrdersTableParams) error
 	InsertIntoProductsTable(ctx context.Context, arg InsertIntoProductsTableParams) error
-	InsertIntoUsersTable(ctx context.Context, arg InsertIntoUsersTableParams) error
+	InsertIntoUsersTable(ctx context.Context, arg InsertIntoUsersTableParams) (int64, error)
 	SearchProducts(ctx context.Context, arg SearchProductsParams) ([]*Product, error)
 	UpdateOrderPaymentId(ctx context.Context, arg UpdateOrderPaymentIdParams) error
 	UpdateOrderStatusByID(ctx context.Context, arg UpdateOrderStatusByIDParams) error

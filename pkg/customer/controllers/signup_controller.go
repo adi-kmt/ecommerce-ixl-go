@@ -2,10 +2,11 @@ package customer_controllers
 
 import (
 	"os"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 	"gituh.com/adi-kmt/ecommerce-ixl-go/internal/messages"
 	user_services "gituh.com/adi-kmt/ecommerce-ixl-go/pkg/customer/services"
 )
@@ -31,13 +32,16 @@ func SignupController(service *user_services.UserService) fiber.Handler {
 				return c.Status(fiber.StatusUnauthorized).SendString("Invalid Admin Password")
 			}
 		}
-		err0 := service.InsertUser(c, requestParams.Name, requestParams.Email, requestParams.Address, requestParams.Password, requestParams.IsAdmin)
+		userId, err0 := service.InsertUser(c, requestParams.Name, requestParams.Email, requestParams.Address, requestParams.Password, requestParams.IsAdmin)
 		if err0 != nil {
 			return c.Status(err0.Code).SendString(err0.Message)
 		}
 		claims := jwt.MapClaims{
-			"Email": requestParams.Email,
+			"email": requestParams.Email,
+			"id":    userId,
+			"exp":   time.Now().Add(time.Hour * 72).Unix(),
 		}
+
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 		secretKey, isPresent := os.LookupEnv("JWT_SECRET")
@@ -45,7 +49,7 @@ func SignupController(service *user_services.UserService) fiber.Handler {
 			secretKey = "sample_secret"
 		}
 
-		t, err1 := token.SignedString(secretKey)
+		t, err1 := token.SignedString([]byte(secretKey))
 		if err1 != nil {
 			return c.Status(fiber.ErrInternalServerError.Code).SendString("Something went wrong while signing the token")
 		}

@@ -6,9 +6,9 @@ INSERT INTO products (name, description, price, stock, category_id)
 INSERT INTO categories (name)
     VALUES ($1) ON CONFLICT DO NOTHING;
 
--- name: InsertIntoUsersTable :exec
+-- name: InsertIntoUsersTable :one
 INSERT INTO users (email, name, address, isAdmin, password)
-    VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING;
+    VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING RETURNING id;
 
 -- name: InsertIntoOrdersTable :exec
 INSERT INTO orders (id, user_id, status, payment_id, total_price)
@@ -34,7 +34,7 @@ LEFT JOIN orders ON users.id = orders.user_id
 WHERE users.id = $1;
 
 -- name: GetUserEmailAndPasswordByEmail :one
-SELECT  email, password FROM users
+SELECT  id, email, password FROM users
 WHERE email = $1;
 
 -- name: GetCurrentOrderByID :many
