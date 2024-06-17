@@ -10,7 +10,7 @@ import (
 
 func (repo *UserRepository) GetProducts(ctx *fiber.Ctx) ([]entities.ProductDto, *messages.AppError) {
 
-	products, err := repo.q.GetProductsForCategories(ctx.Context(), []string{"Featured"})
+	products, err := repo.q.GetProductsForCategories(ctx.Context(), []int32{1})
 	if err != nil {
 		log.Debugf("Error Getting Products: %v", err)
 		return nil, messages.InternalServerError("Error Getting Products")
@@ -18,7 +18,7 @@ func (repo *UserRepository) GetProducts(ctx *fiber.Ctx) ([]entities.ProductDto, 
 	return entities.ProductDtoFromDbRow(products), nil
 }
 
-func (repo *UserRepository) SearchProducts(ctx *fiber.Ctx, name string, category []string) ([]entities.ProductDto, *messages.AppError) {
+func (repo *UserRepository) SearchProducts(ctx *fiber.Ctx, name string, category []int32) ([]entities.ProductDto, *messages.AppError) {
 
 	products, err := repo.q.SearchProducts(ctx.Context(), db.SearchProductsParams{
 		Column1: &name,

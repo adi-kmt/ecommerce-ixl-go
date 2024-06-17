@@ -14,6 +14,6 @@ func (service *UserService) GetProductDetails(ctx *fiber.Ctx, id int64) (*entiti
 	return service.repo.GetProductDetails(ctx, id)
 }
 
-func (service *UserService) SearchProducts(ctx *fiber.Ctx, name string, category []string) ([]entities.ProductDto, *messages.AppError) {
+func (service *UserService) SearchProducts(ctx *fiber.Ctx, name string, category []int32) ([]entities.ProductDto, *messages.AppError) {
 	return service.repo.SearchProducts(ctx, name, category)
 }

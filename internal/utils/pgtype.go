@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"fmt"
+
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -13,5 +15,5 @@ func ConvertUUIDToPgType(uuid uuid.UUID) pgtype.UUID {
 }
 
 func ConvertPgUUIDToString(uuid pgtype.UUID) string {
-	return string(uuid.Bytes[:])
+	return fmt.Sprintf("%x", uuid.Bytes)
 }

@@ -1,7 +1,19 @@
 package utils
 
-import "strings"
+import (
+	"strconv"
+	"strings"
+)
 
-func StringConvertToListOfString(stringToBeConverted string) []string {
-	return strings.Split(strings.TrimSpace(stringToBeConverted), ",")
+func StringConvertToListOfInt(stringToBeConverted string) []int32 {
+	var intList []int32
+	strings := strings.Split(strings.TrimSpace(stringToBeConverted), ",")
+	for _, string := range strings {
+		intVal, err := strconv.Atoi(string)
+		if err != nil {
+			continue
+		}
+		intList = append(intList, int32(intVal))
+	}
+	return intList
 }

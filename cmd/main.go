@@ -12,7 +12,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/joho/godotenv"
 	"gituh.com/adi-kmt/ecommerce-ixl-go/internal/injection"
-	"gituh.com/adi-kmt/ecommerce-ixl-go/internal/jwt"
 	admin_controllers "gituh.com/adi-kmt/ecommerce-ixl-go/pkg/admin/controllers"
 	customer_controllers "gituh.com/adi-kmt/ecommerce-ixl-go/pkg/customer/controllers"
 )
@@ -29,12 +28,12 @@ func main() {
 	app.Use(cors.New())
 	app.Use(recover.New())
 
-	secretKey, isPresent := os.LookupEnv("JWT_SECRET")
-	if !isPresent {
-		secretKey = "sample_secret"
-	}
+	// secretKey, isPresent := os.LookupEnv("JWT_SECRET")
+	// if !isPresent {
+	// 	secretKey = "sample_secret"
+	// }
 
-	app.Use(jwt.NewAuthMiddleware(secretKey))
+	// app.Use(jwt.NewAuthMiddleware(secretKey))
 
 	userService, adminService := injection.InjectDependencies()
 

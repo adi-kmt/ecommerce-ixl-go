@@ -1,6 +1,8 @@
 package admin_repositories
 
 import (
+	"strconv"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/google/uuid"
@@ -56,25 +58,26 @@ func (repo *AdminRepository) DeleteProduct(ctx *fiber.Ctx, id int64) *messages.A
 }
 
 func (repo *AdminRepository) GetAllOrders(ctx *fiber.Ctx, userId string, status string) ([]entities.AdminOrderDto, *messages.AppError) {
-	var userUUID *uuid.UUID
-	var pgStatus *db.OrderStatusEnum
+	var userIntVal int32 = -1
+	var pgStatus db.OrderStatusEnum = ""
 
 	if userId != "" {
-		uuidVal, err := uuid.Parse(userId)
+		intval, err := strconv.Atoi(userId)
 		if err != nil {
 			log.Debugf("Error Parsing User ID: %v", err)
 			return nil, messages.BadRequest("Invalid User ID")
 		}
-		userUUID = &uuidVal
+		int32Val := int32(intval)
+		userIntVal = int32Val
 	}
 
 	if status != "" {
 		pgStatusVal := db.OrderStatusEnum(status)
-		pgStatus = &pgStatusVal
+		pgStatus = pgStatusVal
 	}
 
 	orders, err0 := repo.q.GetOrdersByUserIDOrStatus(ctx.Context(), db.GetOrdersByUserIDOrStatusParams{
-		Column1: userUUID,
+		Column1: userIntVal,
 		Column2: pgStatus,
 	})
 	if err0 != nil {

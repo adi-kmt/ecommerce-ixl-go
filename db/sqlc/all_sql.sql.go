@@ -57,14 +57,31 @@ func (q *Queries) GetCurrentOrderByID(ctx context.Context, orderID pgtype.UUID) 
 	return items, nil
 }
 
+const getOrderDetailsById = `-- name: GetOrderDetailsById :one
+SELECT id, total_price FROM orders
+WHERE id = $1
+`
+
+type GetOrderDetailsByIdRow struct {
+	ID         pgtype.UUID `json:"id"`
+	TotalPrice float64     `json:"total_price"`
+}
+
+func (q *Queries) GetOrderDetailsById(ctx context.Context, id pgtype.UUID) (*GetOrderDetailsByIdRow, error) {
+	row := q.db.QueryRow(ctx, getOrderDetailsById, id)
+	var i GetOrderDetailsByIdRow
+	err := row.Scan(&i.ID, &i.TotalPrice)
+	return &i, err
+}
+
 const getOrdersByUserIDOrStatus = `-- name: GetOrdersByUserIDOrStatus :many
 SELECT id, user_id, status FROM orders
-WHERE ($1 IS NULL OR user_id = $1)
-AND ($2 IS NULL OR status = $2)
+WHERE (NULLIF($1::int, -1) IS NULL OR user_id = $1::int)
+AND (NULLIF($2::text, '') IS NULL OR status = $2::order_status_enum)
 `
 
 type GetOrdersByUserIDOrStatusParams struct {
-	Column1 interface{} `json:"column_1"`
+	Column1 int32  `json:"column_1"`
 	Column2 interface{} `json:"column_2"`
 }
 
@@ -115,10 +132,10 @@ func (q *Queries) GetProductDetailByID(ctx context.Context, id int64) (*Product,
 
 const getProductsForCategories = `-- name: GetProductsForCategories :many
 SELECT id, name, description, price, stock, category_id FROM products
-WHERE category_id IN (SELECT id FROM categories WHERE name = ANY ($1::text[]))
+WHERE category_id = ANY($1::int[])
 `
 
-func (q *Queries) GetProductsForCategories(ctx context.Context, dollar_1 []string) ([]*Product, error) {
+func (q *Queries) GetProductsForCategories(ctx context.Context, dollar_1 []int32) ([]*Product, error) {
 	rows, err := q.db.Query(ctx, getProductsForCategories, dollar_1)
 	if err != nil {
 		return nil, err
@@ -311,14 +328,15 @@ func (q *Queries) InsertIntoUsersTable(ctx context.Context, arg InsertIntoUsersT
 }
 
 const searchProducts = `-- name: SearchProducts :many
-SELECT id, name, description, price, stock, category_id FROM products
+SELECT id, name, description, price, stock, category_id 
+FROM products
 WHERE name ILIKE '%' || $1 || '%'
-AND ($2::text[] IS NULL OR category_id IN (SELECT id FROM categories WHERE name = ANY ($2)))
+AND (($2::int[] IS NULL) OR (category_id = ANY($2::int[])))
 `
 
 type SearchProductsParams struct {
-	Column1 *string  `json:"column_1"`
-	Column2 []string `json:"column_2"`
+	Column1 *string `json:"column_1"`
+	Column2 []int32 `json:"column_2"`
 }
 
 func (q *Queries) SearchProducts(ctx context.Context, arg SearchProductsParams) ([]*Product, error) {
@@ -373,6 +391,20 @@ type UpdateOrderStatusByIDParams struct {
 
 func (q *Queries) UpdateOrderStatusByID(ctx context.Context, arg UpdateOrderStatusByIDParams) error {
 	_, err := q.db.Exec(ctx, updateOrderStatusByID, arg.ID, arg.Status)
+	return err
+}
+
+const updateOrderTotalPriceByID = `-- name: UpdateOrderTotalPriceByID :exec
+UPDATE orders SET total_price = $2 WHERE id = $1
+`
+
+type UpdateOrderTotalPriceByIDParams struct {
+	ID         pgtype.UUID `json:"id"`
+	TotalPrice float64     `json:"total_price"`
+}
+
+func (q *Queries) UpdateOrderTotalPriceByID(ctx context.Context, arg UpdateOrderTotalPriceByIDParams) error {
+	_, err := q.db.Exec(ctx, updateOrderTotalPriceByID, arg.ID, arg.TotalPrice)
 	return err
 }
 
