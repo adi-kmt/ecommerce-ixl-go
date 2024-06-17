@@ -17,7 +17,7 @@ type DbConn struct {
 
 // InitPool initializes the database connection pool and runs migrations.
 func InitPool(config *DbConfig) *DbConn {
-	connectionString := fmt.Sprintf("postgresql://%s:%s@127.0.0.1:%s/%s?sslmode=disable",
+	connectionString := fmt.Sprintf("postgresql://%s:%s@db:%s/%s?sslmode=disable",
 		config.dbUser, config.dbPassword, config.dbPort, config.dbName)
 
 	ctx := context.Background()
